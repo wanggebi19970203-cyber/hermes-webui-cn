@@ -217,54 +217,55 @@ organizational gap vs. Claude's project folders.
 **Hermes CLI parity impact:** Low (CLI has no session organization)
 **Claude parity impact:** Very High (projects are a core Claude concept)
 
-### Candidates for next sprints
-- Workspace reorder (drag-and-drop)
-- View skill linked files
+### Candidates for later sprints
+- Artifacts + code execution (HTML/SVG preview, inline Python execution)
 - Voice input via Whisper
 - Subagent delegation cards (enhanced tool card rendering)
 
 ---
 
-## Sprint 16 -- Artifacts + Code Execution
+## Sprint 16 -- Session Sidebar Visual Polish (COMPLETED)
 
-**Theme:** See outputs, not just text.
+**Theme:** Make the session list feel high-quality and delightful.
 
-**Why now:** Claude's most distinctive feature is the artifact panel --
-code runs inline, HTML renders in a sandboxed iframe, SVGs show as images.
-This is the largest single capability gap between what we have and what Claude
-feels like. It also directly enables the Hermes "code execution cell" feature
-(Jupyter-style in-browser execution).
+**Why now:** The session sidebar had two visible UX bugs: titles truncated
+unnecessarily because action icons reserved space even when hidden, and
+the project folder icon felt "sticky" and awkward. Emoji icons rendered
+inconsistently across platforms. These were the most common visual complaints.
 
-### Track A: Bugs
-- Prism.js autoloader makes one CDN request per language encountered. On a
-  code-heavy session this causes noticeable latency. Bundle the top 10 languages
-  (Python, JS, bash, JSON, SQL, YAML, TypeScript, CSS, HTML, Rust) locally.
-- Code blocks in long responses sometimes re-highlight on every renderMessages()
-  call. Debounce highlightCode() with requestAnimationFrame.
+### Track A: Bugs (from BUGS.md)
+- **Session title truncation.** Action icons (pin, move, archive, dup, trash)
+  were always in the DOM with `flex-shrink:0`, reserving ~30px even when
+  invisible. Fix: wrapped all actions in a `.session-actions` overlay
+  container with `position:absolute`. Titles now use full available width.
+  Actions appear on hover with a gradient fade from the right edge.
+- **Folder button feels sticky.** Replaced `.has-project` persistent blue
+  button with a colored left border matching the project color. The folder
+  button now only appears in the hover overlay like all other actions.
 
 ### Track B: Features
-- **Artifact panel:** When Hermes produces a code block tagged as `html`, `svg`,
-  or `react`, a "Preview" button appears on that code block. Clicking it opens
-  a sandboxed `<iframe>` in the right panel showing the rendered output. The
-  preview updates live if Hermes edits the artifact in a follow-up.
-- **Code execution cell:** A "Run" button on Python code blocks. Sends the code
-  to a new server endpoint (`POST /api/execute`) which runs it in a subprocess
-  with a 30-second timeout and streams stdout/stderr back as SSE. Output appears
-  below the code block inline. This is the Jupyter cell experience without
-  needing a kernel.
-- **Mermaid diagram rendering:** Mermaid.js CDN (deferred). Code blocks tagged
-  as `mermaid` render as flow/sequence/gantt diagrams inline.
+- **SVG action icons.** Replaced all emoji HTML entities (★, 📂, 📦, ⊕, 🗑)
+  with monochrome SVG line icons that inherit `currentColor`. Consistent
+  rendering across macOS, Linux, and Windows. Icons: pin (star), folder,
+  archive (box), duplicate (overlapping squares), trash (bin with lines).
+- **Pin indicator.** Small gold filled-star icon rendered inline before the
+  title only when the session is actually pinned. Unpinned sessions get
+  full title width with zero space reservation.
+- **Project border indicator.** Sessions assigned to a project show a
+  colored left border matching the project color, replacing the old
+  always-visible blue folder button.
+- **Hover overlay polish.** Actions container uses a gradient background
+  that fades from transparent to the sidebar color, creating a smooth
+  emergence effect. Overlay hides automatically during inline rename.
 
-### Track C: Architecture
-- Sandbox safety: `/api/execute` runs in a restricted subprocess (no network,
-  limited filesystem via a temp directory). Returns exit code, stdout, stderr,
-  and execution time.
-- Artifact state: artifacts are tracked in `S.artifacts = {}` (code block hash
-  -> rendered content). Persisted in session JSON as `artifacts` array.
+### Deferred to Sprint 17
+- Slash commands (basic set with `commands.js` module)
+- Thinking/reasoning display for extended-thinking models
+- Slash command autocomplete popup
 
-**Tests:** ~18 new. Total: ~259.
-**Hermes CLI parity impact:** High (code execution closes the Jupyter gap)
-**Claude parity impact:** Very High (artifacts are Claude's signature feature)
+**Tests:** 0 new (pure CSS/DOM changes). Total: 237.
+**Hermes CLI parity impact:** Low
+**Claude parity impact:** Medium (sidebar polish matches Claude's quality bar)
 
 ---
 
@@ -403,7 +404,7 @@ address.
 | Settings persistence | Done (Sprint 12) |
 | Subagent visibility | Sprint 18 |
 | Background task monitor | Sprint 18 |
-| Code execution (Jupyter) | Sprint 16 |
+| Code execution (Jupyter) | Sprint 17+ |
 | Cron completion alerts | Done (Sprint 13) |
 | Virtual scroll (perf) | Deferred |
 
@@ -419,12 +420,12 @@ address.
 | Tool use visibility | Done (v0.11) |
 | Edit/regenerate messages | Done (v0.10) |
 | Session management | Done (v0.6) |
-| Artifacts (HTML/SVG preview) | Sprint 16 |
-| Code execution inline | Sprint 16 |
+| Artifacts (HTML/SVG preview) | Sprint 17+ |
+| Code execution inline | Sprint 17+ |
 | Mermaid diagrams | Done (Sprint 14) |
 | Projects / folders | Done (Sprint 15) |
 | Pinned/starred sessions | Done (Sprint 12) |
-| Reasoning display | Sprint 18 |
+| Reasoning display | Sprint 16 |
 | Voice input | Sprint 17 |
 | TTS playback | Sprint 17 |
 | Notifications | Done (Sprint 13) |
@@ -448,6 +449,6 @@ address.
 
 ---
 
-*Last updated: April 1, 2026*
-*Current version: v0.17 | 237 tests*
-*Next sprint: Sprint 16 (Artifacts + Code Execution)*
+*Last updated: April 2, 2026*
+*Current version: v0.18 | 237 tests*
+*Next sprint: Sprint 17 (Slash Commands + Thinking Display)*

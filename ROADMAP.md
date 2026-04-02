@@ -3,7 +3,7 @@
 > Goal: Full 1:1 parity with the Hermes CLI experience via a clean dark web UI.
 > Everything you can do from the CLI terminal, you can do from this UI.
 >
-> Last updated: Sprint 15 (April 1, 2026)
+> Last updated: Sprint 15 / v0.17.1 (April 2, 2026)
 > Tests: 237 passing
 > Source: <repo>/
 

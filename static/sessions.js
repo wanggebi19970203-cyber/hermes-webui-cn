@@ -1,3 +1,14 @@
+// ── Session action icons (SVG, monochrome, inherit currentColor) ──
+const ICONS={
+  pin:'<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" stroke="none"><polygon points="8,1.5 9.8,5.8 14.5,6.2 11,9.4 12,14 8,11.5 4,14 5,9.4 1.5,6.2 6.2,5.8"/></svg>',
+  unpin:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><polygon points="8,2 9.8,6.2 14.2,6.2 10.7,9.2 12,13.8 8,11 4,13.8 5.3,9.2 1.8,6.2 6.2,6.2"/></svg>',
+  folder:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4.5h4l1.5 1.5H14v7H2z"/></svg>',
+  archive:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="3" rx="1"/><path d="M2.5 5v8h11V5"/><line x1="6" y1="8.5" x2="10" y2="8.5"/></svg>',
+  unarchive:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="3" rx="1"/><path d="M2.5 5v8h11V5"/><polyline points="6.5,7 8,5.5 9.5,7"/></svg>',
+  dup:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4.5" y="4.5" width="8.5" height="8.5" rx="1.5"/><path d="M3 11.5V3h8.5"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M4.5 4.5v8.5h7v-8.5"/><line x1="7" y1="7" x2="7" y2="11"/><line x1="9" y1="7" x2="9" y2="11"/></svg>',
+};
+
 async function newSession(flash){
   MSG_QUEUE.length=0;updateQueueBadge();
   S.toolCalls=[];
@@ -242,11 +253,35 @@ function renderSessionListFromCache(){
       setTimeout(()=>{inp.focus();inp.select();},10);
     };
 
-    const pin=document.createElement('span');
-    pin.className='session-pin'+(s.pinned?' pinned':'');
-    pin.innerHTML=s.pinned?'&#9733;':'&#9734;';
-    pin.title=s.pinned?'Unpin':'Pin to top';
-    pin.onclick=async(e)=>{
+    // Pin indicator (inline, only when pinned — no space reserved otherwise)
+    if(s.pinned){
+      const pinInd=document.createElement('span');
+      pinInd.className='session-pin-indicator';
+      pinInd.innerHTML=ICONS.pin;
+      el.appendChild(pinInd);
+    }
+    // Project indicator: colored left border
+    if(s.project_id){
+      const proj=_allProjects.find(p=>p.project_id===s.project_id);
+      if(proj){
+        el.style.borderLeftColor=proj.color||'var(--blue)';
+        const dot=document.createElement('span');
+        dot.className='session-project-dot';
+        dot.style.background=proj.color||'var(--blue)';
+        dot.title=proj.name;
+        title.appendChild(dot);
+      }
+    }
+    el.appendChild(title);
+    // Action buttons overlay (appears on hover with gradient fade)
+    const actions=document.createElement('div');
+    actions.className='session-actions';
+    // Pin toggle
+    const pinBtn=document.createElement('button');
+    pinBtn.className='act-pin'+(s.pinned?' pinned':'');
+    pinBtn.innerHTML=s.pinned?ICONS.pin:ICONS.unpin;
+    pinBtn.title=s.pinned?'Unpin':'Pin to top';
+    pinBtn.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
       const newPinned=!s.pinned;
       try{
@@ -256,8 +291,15 @@ function renderSessionListFromCache(){
         renderSessionList();
       }catch(err){showToast('Pin failed: '+err.message);}
     };
+    actions.appendChild(pinBtn);
+    // Move to project
+    const move=document.createElement('button');
+    move.className='act-move';move.innerHTML=ICONS.folder;move.title='Move to project';
+    move.onclick=async(e)=>{e.stopPropagation();e.preventDefault();_showProjectPicker(s,move);};
+    actions.appendChild(move);
+    // Archive
     const archive=document.createElement('button');
-    archive.className='session-action-btn';archive.innerHTML=s.archived?'&#9993;':'&#128230;';
+    archive.className='act-archive';archive.innerHTML=s.archived?ICONS.unarchive:ICONS.archive;
     archive.title=s.archived?'Unarchive':'Archive';
     archive.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
@@ -269,8 +311,10 @@ function renderSessionListFromCache(){
         showToast(s.archived?'Session archived':'Session restored');
       }catch(err){showToast('Archive failed: '+err.message);}
     };
+    actions.appendChild(archive);
+    // Duplicate
     const dup=document.createElement('button');
-    dup.className='session-dup';dup.innerHTML='&#10697;';dup.title='Duplicate';
+    dup.className='act-dup';dup.innerHTML=ICONS.dup;dup.title='Duplicate';
     dup.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
       try{
@@ -282,26 +326,13 @@ function renderSessionListFromCache(){
         }
       }catch(err){showToast('Duplicate failed: '+err.message);}
     };
+    actions.appendChild(dup);
+    // Trash
     const trash=document.createElement('button');
-    trash.className='session-trash';trash.innerHTML='&#128465;';trash.title='Delete';
+    trash.className='act-trash';trash.innerHTML=ICONS.trash;trash.title='Delete';
     trash.onclick=async(e)=>{e.stopPropagation();e.preventDefault();await deleteSession(s.session_id);};
-    // Project move button (folder icon)
-    const move=document.createElement('button');
-    move.className='session-action-btn'+(s.project_id?' has-project':'');
-    move.innerHTML='&#128194;';move.title='Move to project';
-    move.onclick=async(e)=>{e.stopPropagation();e.preventDefault();_showProjectPicker(s,move);};
-    // Project dot indicator
-    if(s.project_id){
-      const proj=_allProjects.find(p=>p.project_id===s.project_id);
-      if(proj){
-        const dot=document.createElement('span');
-        dot.className='session-project-dot';
-        dot.style.background=proj.color||'var(--blue)';
-        dot.title=proj.name;
-        title.appendChild(dot);
-      }
-    }
-    el.appendChild(pin);el.appendChild(title);el.appendChild(move);el.appendChild(archive);el.appendChild(dup);el.appendChild(trash);
+    actions.appendChild(trash);
+    el.appendChild(actions);
 
     // Use a click timer to distinguish single-click (navigate) from double-click (rename).
     // This prevents loadSession from firing on the first click of a double-click,
@@ -309,7 +340,7 @@ function renderSessionListFromCache(){
     let _clickTimer=null;
     el.onclick=async(e)=>{
       if(_renamingSid) return; // ignore while any rename is active
-      if([trash,dup,archive,move].some(b=>e.target===b||b.contains(e.target))) return;
+      if(actions.contains(e.target)) return;
       clearTimeout(_clickTimer);
       _clickTimer=setTimeout(async()=>{
         _clickTimer=null;

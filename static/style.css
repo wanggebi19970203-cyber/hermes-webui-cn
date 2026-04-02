@@ -20,13 +20,21 @@
   .session-search input::placeholder{color:var(--muted);opacity:.7;}
   /* Inline session title edit */
   .session-title-input{flex:1;background:rgba(20,32,60,.9);border:1px solid rgba(124,185,255,.6);border-radius:6px;color:var(--text);padding:3px 8px;font-size:13px;outline:none;min-width:0;box-shadow:0 0 0 2px rgba(124,185,255,.15);font-family:inherit;}
-  .session-item{padding:8px 10px 8px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s,border-color .15s;display:flex;align-items:center;gap:6px;min-width:0;border-left:2px solid transparent;}
+  .session-item{padding:8px 10px 8px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s,border-color .15s;display:flex;align-items:center;gap:6px;min-width:0;border-left:2px solid transparent;position:relative;}
   .session-item:hover{background:rgba(255,255,255,0.06);color:var(--text);}
   .session-item.active{background:rgba(124,185,255,0.1);color:var(--blue);border-left:2px solid var(--blue);padding-left:8px;}
   .session-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .session-trash{flex-shrink:0;opacity:0;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;transition:opacity .15s,color .15s;}
-  .session-item:hover .session-trash{opacity:1;}
-  .session-trash:hover{color:var(--accent)!important;}
+  /* ── Session action button overlay ── */
+  .session-actions{position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;gap:2px;padding:0 6px 0 16px;background:linear-gradient(to right,transparent,var(--sidebar) 12px);opacity:0;pointer-events:none;transition:opacity .15s ease;border-radius:0 8px 8px 0;}
+  .session-item:hover .session-actions{opacity:1;pointer-events:auto;}
+  .session-item.active .session-actions{background:linear-gradient(to right,transparent,rgba(16,33,62,.95) 12px);}
+  .session-actions button{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 3px;line-height:1;transition:color .12s;display:flex;align-items:center;}
+  .session-actions button:hover{color:var(--text);}
+  .session-actions .act-trash:hover{color:var(--accent);}
+  .session-actions .act-pin.pinned{color:#f5c542;}
+  .session-actions .act-pin.pinned:hover{color:#d4a017;}
+  /* Hide overlay during inline rename */
+  .session-item:has(.session-title-input) .session-actions{display:none;}
   @keyframes newflash{0%{background:rgba(124,185,255,0.22);color:var(--blue);}100%{background:transparent;color:var(--muted);}}
   .session-item.new-flash{animation:newflash 1.4s ease-out forwards;}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,30,50,.95);backdrop-filter:blur(12px);border:1px solid rgba(124,185,255,0.25);color:var(--text);font-size:13px;padding:10px 20px;border-radius:12px;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.3);letter-spacing:.01em;}
@@ -495,17 +503,9 @@ body.resizing{user-select:none;cursor:col-resize;}
 .gear-btn{font-size:13px;cursor:pointer;transition:color .15s,background .15s;}
 .gear-btn:hover{color:var(--text);background:rgba(255,255,255,.08);}
 
-/* ── Session pin star ── */
-.session-pin{font-size:12px;cursor:pointer;opacity:0;transition:opacity .15s;padding:2px 4px;flex-shrink:0;}
-.session-item:hover .session-pin,.session-pin.pinned{opacity:1;}
-.session-pin.pinned{color:#f5c542;}
-
-/* ── Session duplicate button ── */
-.session-dup,.session-action-btn{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;opacity:0;transition:opacity .15s;padding:2px 4px;flex-shrink:0;}
-.session-item:hover .session-dup,.session-item:hover .session-action-btn{opacity:1;}
-.session-dup:hover,.session-action-btn:hover{color:var(--text);}
-.session-action-btn.has-project{opacity:.6;color:var(--blue);}
-.session-item:hover .session-action-btn.has-project{opacity:1;}
+/* ── Session pin indicator (inline, only when pinned) ── */
+.session-pin-indicator{flex-shrink:0;color:#f5c542;line-height:1;display:flex;align-items:center;}
+.session-pin-indicator svg{width:10px;height:10px;}
 
 /* ── Cron alert badge ── */
 .cron-badge{position:absolute;top:2px;right:2px;background:#e53e3e;color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;line-height:14px;text-align:center;border-radius:7px;padding:0 3px;}
