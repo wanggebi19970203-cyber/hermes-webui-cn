@@ -374,13 +374,29 @@ function renderMessages(){
       }
       const frag=document.createDocumentFragment();
       for(const tc of cards){frag.appendChild(buildToolCard(tc));}
+      // Add expand/collapse toggle for groups with 2+ cards
+      if(cards.length>=2){
+        const toggle=document.createElement('div');
+        toggle.className='tool-cards-toggle';
+        // Collect card elements before they get moved to DOM
+        const cardEls=Array.from(frag.querySelectorAll('.tool-card'));
+        const expandBtn=document.createElement('button');
+        expandBtn.textContent='Expand all';
+        expandBtn.onclick=()=>cardEls.forEach(c=>c.classList.add('open'));
+        const collapseBtn=document.createElement('button');
+        collapseBtn.textContent='Collapse all';
+        collapseBtn.onclick=()=>cardEls.forEach(c=>c.classList.remove('open'));
+        toggle.appendChild(expandBtn);
+        toggle.appendChild(collapseBtn);
+        frag.insertBefore(toggle,frag.firstChild);
+      }
       if(insertBefore) inner.insertBefore(frag,insertBefore);
       else inner.appendChild(frag);
     }
   }
   scrollToBottom();
   // Apply syntax highlighting after DOM is built
-  requestAnimationFrame(()=>{highlightCode();renderMermaidBlocks();});
+  requestAnimationFrame(()=>{highlightCode();addCopyButtons();renderMermaidBlocks();});
   // Refresh todo panel if it's currently open
   if(typeof loadTodos==='function' && document.getElementById('panelTodos') && document.getElementById('panelTodos').classList.contains('active')){
     loadTodos();
@@ -556,6 +572,36 @@ function highlightCode(container) {
   const el = container || $('msgInner');
   if(!el) return;
   Prism.highlightAllUnder(el);
+}
+
+function addCopyButtons(container){
+  const el=container||$('msgInner');
+  if(!el) return;
+  el.querySelectorAll('pre > code').forEach(codeEl=>{
+    const pre=codeEl.parentElement;
+    if(pre.querySelector('.code-copy-btn')) return;
+    const btn=document.createElement('button');
+    btn.className='code-copy-btn';
+    btn.textContent='Copy';
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      navigator.clipboard.writeText(codeEl.textContent).then(()=>{
+        btn.textContent='Copied!';
+        setTimeout(()=>{btn.textContent='Copy';},1500);
+      });
+    };
+    const header=pre.previousElementSibling;
+    if(header&&header.classList.contains('pre-header')){
+      header.style.display='flex';
+      header.style.justifyContent='space-between';
+      header.style.alignItems='center';
+      header.appendChild(btn);
+    }else{
+      pre.style.position='relative';
+      btn.style.cssText='position:absolute;top:6px;right:6px;';
+      pre.appendChild(btn);
+    }
+  });
 }
 
 let _mermaidLoading=false;

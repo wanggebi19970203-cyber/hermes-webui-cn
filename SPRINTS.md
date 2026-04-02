@@ -146,7 +146,7 @@ to daily friction.
 
 ---
 
-## Sprint 14 -- Visual Polish + Workspace Ops + Session Organization
+## Sprint 14 -- Visual Polish + Workspace Ops + Session Organization (COMPLETED)
 
 **Theme:** Polish the visual experience, close workspace file gaps, and
 organize sessions properly.
@@ -169,60 +169,63 @@ organize sessions properly.
   sessions hidden from sidebar by default. "Show N archived" toggle at top
   of list. `POST /api/session/archive` endpoint.
 
-### Candidates for next sprints
-- Workspace reorder (drag-and-drop)
-- View skill linked files
-- Voice input via Whisper
-- Subagent delegation cards (enhanced tool card rendering)
-
 **Tests:** ~12 new. Total: ~233.
 **Hermes CLI parity impact:** Medium (file rename, folder create)
 **Claude parity impact:** Medium (Mermaid, tags, archive)
 
 ---
 
-## Sprint 15 -- Project Organization + Session Management
+## Sprint 15 -- Session Projects + Code Copy + Tool Card Toggle (COMPLETED)
 
 **Theme:** Organize work the way you think, not just chronologically.
+Plus two quick UX wins for code and agentic workflows.
 
 **Why now:** After 100+ sessions the sidebar is a flat chronological list.
-Finding sessions from 2 weeks ago, or keeping a "MyProject" workspace separate
-from personal work, requires the search box. This is the biggest remaining
-daily organizational gap vs. Claude's project folders.
+Finding sessions from 2 weeks ago, or keeping work separated by project,
+requires the search box. Session projects are the single biggest remaining
+organizational gap vs. Claude's project folders.
 
 ### Track A: Bugs
-- Session search content scan (depth=5) is slow on large session histories.
-  Add server-side caching of search index.
-- Date group headers ("Today / Yesterday / Earlier") use updated_at which can
-  be misleading for sessions touched by automated title-setting. Use created_at
-  for initial grouping, updated_at for sort order.
+- None.
 
 ### Track B: Features
-- **Session folders / projects:** A "Projects" section above the session list.
-  Each project is a named group. Sessions can be dragged into projects or
-  assigned via right-click. Stored in `projects.json`. Projects collapse/expand.
-  This is the single biggest Claude parity feature missing.
-- ~~Pin sessions~~ (DONE Sprint 12)
-- ~~Import session from JSON~~ (DONE Sprint 12)
-
-### Deferred to later sprints
-- Session tags / labels
-- Archive sessions
-- Rename file / Create folder (can be done through the agent)
-- Toolset control per session
-- Virtual scroll for session list
+- **Session projects:** Named groups for organizing sessions. A project
+  filter bar (subtle chips) sits between the search input and the session
+  list. Each project has a name and color. Click a chip to filter sessions
+  to that project; "All" shows everything. Create projects inline (+
+  button), rename (double-click chip), delete (right-click). Assign
+  sessions via folder icon button (hover-reveal) with a dropdown picker.
+  Projects stored in `projects.json`. Session model gains `project_id`
+  field (null = unassigned). Fully backward-compatible with existing
+  sessions. Endpoints: `GET /api/projects`, `POST /api/projects/create`,
+  `POST /api/projects/rename`, `POST /api/projects/delete`,
+  `POST /api/session/move`.
+- **Code block copy button:** Every code block gets a "Copy" button.
+  Positioned in the language header bar (or top-right corner for plain
+  code blocks). Click copies code to clipboard, shows "Copied!" for 1.5s.
+- **Tool card expand/collapse:** When a message has 2+ tool cards, an
+  "Expand all / Collapse all" toggle appears above the card group.
+  Scoped per message group, not global.
 
 ### Track C: Architecture
-- Session index v2: extend `_index.json` to include `project_id` field.
-  Rebuild on session save. Enables fast client-side filtering without disk reads.
+- `projects.json` flat file storage for project list (same pattern as
+  `workspaces.json` and `settings.json`).
+- `project_id` field on Session model with backward-compatible null default.
+- `_index.json` includes `project_id` for fast client-side filtering.
 
-**Tests:** ~16 new. Total: ~241.
+**Tests:** 13 new. Total: ~237.
 **Hermes CLI parity impact:** Low (CLI has no session organization)
 **Claude parity impact:** Very High (projects are a core Claude concept)
 
+### Candidates for next sprints
+- Workspace reorder (drag-and-drop)
+- View skill linked files
+- Voice input via Whisper
+- Subagent delegation cards (enhanced tool card rendering)
+
 ---
 
-## Sprint 15 -- Artifacts + Code Execution
+## Sprint 16 -- Artifacts + Code Execution
 
 **Theme:** See outputs, not just text.
 
@@ -265,7 +268,7 @@ feels like. It also directly enables the Hermes "code execution cell" feature
 
 ---
 
-## Sprint 16 -- Voice + Multimodal Input
+## Sprint 17 -- Voice + Multimodal Input
 
 **Theme:** Input beyond the keyboard.
 
@@ -303,7 +306,7 @@ file uploads, not clipboard screenshots into the conversation directly).
 
 ---
 
-## Sprint 17 -- Subagent Visibility + Agentic Transparency
+## Sprint 18 -- Subagent Visibility + Agentic Transparency
 
 **Theme:** Watch Hermes think, not just respond.
 
@@ -343,7 +346,7 @@ what's happening. This is the last major "CLI feels better" gap for power users.
 
 ---
 
-## Sprint 18 -- Auth, HTTPS, and Production Hardening
+## Sprint 19 -- Auth, HTTPS, and Production Hardening
 
 **Theme:** Make this safe to leave running.
 
@@ -380,7 +383,7 @@ address.
 
 ## Feature Parity Summary
 
-### After Sprint 17 (Hermes CLI parity: complete)
+### After Sprint 18 (Hermes CLI parity: complete)
 
 | CLI Feature | Status |
 |-------------|--------|
@@ -395,16 +398,16 @@ address.
 | Session history | Done (v0.3) |
 | Workspace switching | Done (v0.7) |
 | Model selection | Done (v0.3) |
-| Multi-provider model support | Sprint 11 |
+| Multi-provider model support | Done (Sprint 11) |
 | Toolset control | Sprint 12 |
-| Settings persistence | Sprint 12 |
-| Subagent visibility | Sprint 17 |
-| Background task monitor | Sprint 17 |
-| Code execution (Jupyter) | Sprint 15 |
-| Cron completion alerts | Sprint 13 |
-| Virtual scroll (perf) | Sprint 13 |
+| Settings persistence | Done (Sprint 12) |
+| Subagent visibility | Sprint 18 |
+| Background task monitor | Sprint 18 |
+| Code execution (Jupyter) | Sprint 16 |
+| Cron completion alerts | Done (Sprint 13) |
+| Virtual scroll (perf) | Deferred |
 
-### After Sprint 18 (Claude parity: ~90% complete)
+### After Sprint 19 (Claude parity: ~90% complete)
 
 | Claude Feature | Status |
 |----------------|--------|
@@ -416,19 +419,19 @@ address.
 | Tool use visibility | Done (v0.11) |
 | Edit/regenerate messages | Done (v0.10) |
 | Session management | Done (v0.6) |
-| Artifacts (HTML/SVG preview) | Sprint 15 |
-| Code execution inline | Sprint 15 |
-| Mermaid diagrams | Sprint 15 |
-| Projects / folders | Sprint 14 |
-| Pinned/starred sessions | Sprint 14 |
-| Reasoning display | Sprint 17 |
-| Voice input | Sprint 16 |
-| TTS playback | Sprint 16 |
-| Notifications | Sprint 13 |
-| Settings panel | Sprint 12 |
-| Auth / login | Sprint 18 |
-| HTTPS | Sprint 18 |
-| Mobile layout | Sprint 18 |
+| Artifacts (HTML/SVG preview) | Sprint 16 |
+| Code execution inline | Sprint 16 |
+| Mermaid diagrams | Done (Sprint 14) |
+| Projects / folders | Done (Sprint 15) |
+| Pinned/starred sessions | Done (Sprint 12) |
+| Reasoning display | Sprint 18 |
+| Voice input | Sprint 17 |
+| TTS playback | Sprint 17 |
+| Notifications | Done (Sprint 13) |
+| Settings panel | Done (Sprint 12) |
+| Auth / login | Sprint 19 |
+| HTTPS | Sprint 19 |
+| Mobile layout | Done (v0.16.1) |
 | Sharing / public URLs | Not planned (requires server infra) |
 | Claude-specific features | Not replicable (Projects AI, artifacts sync) |
 
@@ -445,6 +448,6 @@ address.
 
 ---
 
-*Last updated: March 30, 2026*
-*Current version: v0.13 | 201 tests*
-*Next sprint: Sprint 14 (visual polish + small QoL)*
+*Last updated: April 1, 2026*
+*Current version: v0.17 | 237 tests*
+*Next sprint: Sprint 16 (Artifacts + Code Execution)*

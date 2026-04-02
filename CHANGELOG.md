@@ -5,6 +5,24 @@
 
 ---
 
+## [v0.17] Sprint 15 -- Session Projects + Code Copy + Tool Card Toggle
+*April 1, 2026 | 237 tests*
+
+### Features
+- **Session projects.** Named groups for organizing sessions. A project filter
+  bar (subtle chips) sits between the search input and the session list. Each
+  project has a name and color. Click a chip to filter; "All" shows everything.
+  Create inline (+), rename (double-click), delete (right-click). Assign sessions
+  via folder icon button with dropdown picker. Projects stored in `projects.json`.
+  Session model gains `project_id` field. 5 new API endpoints.
+- **Code block copy button.** Every code block gets a "Copy" button in the
+  language header bar (or top-right for plain blocks). Click copies to clipboard,
+  shows "Copied!" for 1.5s.
+- **Tool card expand/collapse.** When a message has 2+ tool cards, "Expand all /
+  Collapse all" toggle appears above the card group.
+
+---
+
 ## [v0.16.2] Model List Updates + base_url Passthrough
 *April 1, 2026 | 247 tests*
 

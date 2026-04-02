@@ -3,8 +3,8 @@
 > Goal: Full 1:1 parity with the Hermes CLI experience via a clean dark web UI.
 > Everything you can do from the CLI terminal, you can do from this UI.
 >
-> Last updated: Sprint 14 (March 30, 2026)
-> Tests: 226/226 passing
+> Last updated: Sprint 15 (April 1, 2026)
+> Tests: 237 passing
 > Source: <repo>/
 
 ---
@@ -30,6 +30,8 @@
 | Sprint 11 | Multi-provider models + streaming | Dynamic model dropdown (any Hermes provider), smooth scroll pinning, routes extracted to api/routes.py (server.py 704→76 lines) | 201 |
 | Sprint 12 | Settings + reliability + session QoL | Settings panel (gear icon, settings.json), SSE auto-reconnect, pin sessions, import session from JSON | 211 |
 | Sprint 13 | Alerts + polish | Cron completion alerts (polling + badge), background error banner, session duplicate, browser tab title | 221 |
+| Sprint 14 | Visual polish + workspace ops | Mermaid diagrams, message timestamps, file rename, folder create, session tags, session archive | 233 |
+| Sprint 15 | Session projects + code copy | Session projects/folders, code block copy button, tool card expand/collapse toggle | 237 |
 
 ---
 
@@ -103,6 +105,7 @@
 - [x] Import session from JSON (Sprint 12)
 - [x] Pin/star sessions to top of list (Sprint 12)
 - [x] Duplicate session (Sprint 13)
+- [x] Session projects / folders (Sprint 15)
 
 ### Workspace Management
 - [x] Add workspace with path validation (must be existing directory)

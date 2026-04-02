@@ -529,4 +529,28 @@ body.resizing{user-select:none;cursor:col-resize;}
 .mermaid-rendered{background:transparent;padding:8px 0;}
 .mermaid-rendered svg{max-width:100%;height:auto;}
 
+/* ── Session projects ── */
+.project-bar{display:flex;gap:4px;padding:4px 10px 8px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.project-chip{font-size:10px;font-weight:600;padding:3px 8px;border-radius:12px;cursor:pointer;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--muted);transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.project-chip:hover{background:rgba(255,255,255,.08);color:var(--text);}
+.project-chip.active{background:rgba(124,185,255,.12);color:var(--blue);border-color:rgba(124,185,255,.4);}
+.project-chip .color-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.project-create-btn{font-size:10px;padding:3px 6px;border-radius:12px;cursor:pointer;border:1px dashed var(--border2);background:none;color:var(--muted);opacity:.6;transition:all .15s;}
+.project-create-btn:hover{opacity:1;border-color:var(--blue);color:var(--blue);}
+.project-create-input{font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid rgba(124,185,255,.6);background:rgba(20,32,60,.9);color:var(--text);outline:none;width:100px;font-family:inherit;box-shadow:0 0 0 2px rgba(124,185,255,.15);}
+.project-picker{position:absolute;right:0;top:100%;background:var(--sidebar);border:1px solid var(--border2);border-radius:8px;padding:4px;z-index:30;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.project-picker-item{padding:5px 10px;font-size:11px;border-radius:6px;cursor:pointer;color:var(--muted);transition:all .1s;display:flex;align-items:center;gap:6px;}
+.project-picker-item:hover{background:rgba(255,255,255,.08);color:var(--text);}
+.project-picker-item.active{color:var(--blue);}
+.session-project-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block;margin-left:4px;vertical-align:middle;}
+
+/* ── Code copy button ── */
+.code-copy-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--muted);font-size:11px;cursor:pointer;padding:2px 6px;transition:all .15s;line-height:1.3;}
+.code-copy-btn:hover{background:rgba(255,255,255,.12);color:var(--text);}
+
+/* ── Tool card expand/collapse toggle ── */
+.tool-cards-toggle{margin:4px 0 2px 40px;display:flex;gap:8px;}
+.tool-cards-toggle button{background:none;border:none;color:var(--blue);font-size:10px;cursor:pointer;opacity:.6;padding:0;}
+.tool-cards-toggle button:hover{opacity:1;text-decoration:underline;}
+
 .bg-error-banner{background:rgba(229,62,62,.15);border:1px solid rgba(229,62,62,.3);color:#fca5a5;padding:8px 16px;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:0;}

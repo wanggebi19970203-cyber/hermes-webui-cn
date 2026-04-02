@@ -39,6 +39,7 @@ WORKSPACES_FILE       = STATE_DIR / 'workspaces.json'
 SESSION_INDEX_FILE    = SESSION_DIR / '_index.json'
 SETTINGS_FILE         = STATE_DIR / 'settings.json'
 LAST_WORKSPACE_FILE   = STATE_DIR / 'last_workspace.txt'
+PROJECTS_FILE         = STATE_DIR / 'projects.json'
 
 # ── Hermes agent directory discovery ─────────────────────────────────────────
 def _discover_agent_dir() -> Path:

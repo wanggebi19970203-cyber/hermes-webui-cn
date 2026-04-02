@@ -56,12 +56,18 @@ async function loadSession(sid){
 let _allSessions = [];  // cached for search filter
 let _renamingSid = null;  // session_id currently being renamed (blocks list re-renders)
 let _showArchived = false;  // toggle to show archived sessions
+let _allProjects = [];  // cached project list
+let _activeProject = null;  // project_id filter (null = show all)
 
 async function renderSessionList(){
   try{
     if(!($('sessionSearch').value||'').trim()) _contentSearchResults = [];
-    const data=await api('/api/sessions');
-    _allSessions = data.sessions||[];
+    const [sessData, projData] = await Promise.all([
+      api('/api/sessions'),
+      api('/api/projects'),
+    ]);
+    _allSessions = sessData.sessions||[];
+    _allProjects = projData.projects||[];
     renderSessionListFromCache();  // no-ops if rename is in progress
   }catch(e){console.warn('renderSessionList',e);}
 }
@@ -94,10 +100,49 @@ function renderSessionListFromCache(){
   // Merge content matches (deduped): content matches appended after title matches
   const titleIds=new Set(titleMatches.map(s=>s.session_id));
   const allMatched=q?[...titleMatches,..._contentSearchResults.filter(s=>!titleIds.has(s.session_id))]:titleMatches;
+  // Filter by active project
+  const projectFiltered=_activeProject?allMatched.filter(s=>s.project_id===_activeProject):allMatched;
   // Filter archived unless toggle is on
-  const sessions=_showArchived?allMatched:allMatched.filter(s=>!s.archived);
-  const archivedCount=allMatched.filter(s=>s.archived).length;
+  const sessions=_showArchived?projectFiltered:projectFiltered.filter(s=>!s.archived);
+  const archivedCount=projectFiltered.filter(s=>s.archived).length;
   const list=$('sessionList');list.innerHTML='';
+  // Project filter bar (only when projects exist)
+  if(_allProjects.length>0){
+    const bar=document.createElement('div');
+    bar.className='project-bar';
+    // "All" chip
+    const allChip=document.createElement('span');
+    allChip.className='project-chip'+(!_activeProject?' active':'');
+    allChip.textContent='All';
+    allChip.onclick=()=>{_activeProject=null;renderSessionListFromCache();};
+    bar.appendChild(allChip);
+    // Project chips
+    for(const p of _allProjects){
+      const chip=document.createElement('span');
+      chip.className='project-chip'+(p.project_id===_activeProject?' active':'');
+      if(p.color){
+        const dot=document.createElement('span');
+        dot.className='color-dot';
+        dot.style.background=p.color;
+        chip.appendChild(dot);
+      }
+      const nameSpan=document.createElement('span');
+      nameSpan.textContent=p.name;
+      chip.appendChild(nameSpan);
+      chip.onclick=()=>{_activeProject=p.project_id;renderSessionListFromCache();};
+      chip.ondblclick=(e)=>{e.stopPropagation();_startProjectRename(p,chip);};
+      chip.oncontextmenu=(e)=>{e.preventDefault();_confirmDeleteProject(p);};
+      bar.appendChild(chip);
+    }
+    // Create button
+    const addBtn=document.createElement('button');
+    addBtn.className='project-create-btn';
+    addBtn.textContent='+';
+    addBtn.title='New project';
+    addBtn.onclick=(e)=>{e.stopPropagation();_startProjectCreate(bar,addBtn);};
+    bar.appendChild(addBtn);
+    list.appendChild(bar);
+  }
   // Show/hide archived toggle if there are archived sessions
   if(archivedCount>0){
     const toggle=document.createElement('div');
@@ -105,6 +150,13 @@ function renderSessionListFromCache(){
     toggle.textContent=_showArchived?'Hide archived':'Show '+archivedCount+' archived';
     toggle.onclick=()=>{_showArchived=!_showArchived;renderSessionListFromCache();};
     list.appendChild(toggle);
+  }
+  // Empty state for active project filter
+  if(_activeProject&&sessions.length===0){
+    const empty=document.createElement('div');
+    empty.style.cssText='padding:20px 14px;color:var(--muted);font-size:12px;text-align:center;opacity:.7;';
+    empty.textContent='No sessions in this project yet.';
+    list.appendChild(empty);
   }
   // Separate pinned from unpinned
   const pinned=sessions.filter(s=>s.pinned);
@@ -233,7 +285,22 @@ function renderSessionListFromCache(){
     const trash=document.createElement('button');
     trash.className='session-trash';trash.innerHTML='&#128465;';trash.title='Delete';
     trash.onclick=async(e)=>{e.stopPropagation();e.preventDefault();await deleteSession(s.session_id);};
-    el.appendChild(pin);el.appendChild(title);el.appendChild(archive);el.appendChild(dup);el.appendChild(trash);
+    // Project move button (folder icon)
+    const move=document.createElement('button');
+    move.className='session-action-btn';move.innerHTML='&#128194;';move.title='Move to project';
+    move.onclick=async(e)=>{e.stopPropagation();e.preventDefault();_showProjectPicker(s,move);};
+    // Project dot indicator
+    if(s.project_id){
+      const proj=_allProjects.find(p=>p.project_id===s.project_id);
+      if(proj){
+        const dot=document.createElement('span');
+        dot.className='session-project-dot';
+        dot.style.background=proj.color||'var(--blue)';
+        dot.title=proj.name;
+        title.appendChild(dot);
+      }
+    }
+    el.appendChild(pin);el.appendChild(title);el.appendChild(move);el.appendChild(archive);el.appendChild(dup);el.appendChild(trash);
 
     // Use a click timer to distinguish single-click (navigate) from double-click (rename).
     // This prevents loadSession from firing on the first click of a double-click,
@@ -241,7 +308,7 @@ function renderSessionListFromCache(){
     let _clickTimer=null;
     el.onclick=async(e)=>{
       if(_renamingSid) return; // ignore while any rename is active
-      if([trash,dup,archive].some(b=>e.target===b||b.contains(e.target))) return;
+      if([trash,dup,archive,move].some(b=>e.target===b||b.contains(e.target))) return;
       clearTimeout(_clickTimer);
       _clickTimer=setTimeout(async()=>{
         _clickTimer=null;
@@ -282,6 +349,111 @@ async function deleteSession(sid){
   }
   showToast('Conversation deleted');
   await renderSessionList();
+}
+
+// ── Project helpers ─────────────────────────────────────────────────────
+
+const PROJECT_COLORS=['#7cb9ff','#f5c542','#e94560','#50c878','#c084fc','#fb923c','#67e8f9','#f472b6'];
+
+function _showProjectPicker(session, anchorEl){
+  // Close any existing picker
+  document.querySelectorAll('.project-picker').forEach(p=>p.remove());
+  const picker=document.createElement('div');
+  picker.className='project-picker';
+  // "No project" option
+  const none=document.createElement('div');
+  none.className='project-picker-item'+(!session.project_id?' active':'');
+  none.textContent='No project';
+  none.onclick=async()=>{
+    picker.remove();
+    await api('/api/session/move',{method:'POST',body:JSON.stringify({session_id:session.session_id,project_id:null})});
+    session.project_id=null;
+    renderSessionListFromCache();
+    showToast('Removed from project');
+  };
+  picker.appendChild(none);
+  // Project options
+  for(const p of _allProjects){
+    const item=document.createElement('div');
+    item.className='project-picker-item'+(session.project_id===p.project_id?' active':'');
+    if(p.color){
+      const dot=document.createElement('span');
+      dot.className='color-dot';
+      dot.style.cssText='width:6px;height:6px;border-radius:50%;background:'+p.color+';flex-shrink:0;';
+      item.appendChild(dot);
+    }
+    const name=document.createElement('span');
+    name.textContent=p.name;
+    item.appendChild(name);
+    item.onclick=async()=>{
+      picker.remove();
+      await api('/api/session/move',{method:'POST',body:JSON.stringify({session_id:session.session_id,project_id:p.project_id})});
+      session.project_id=p.project_id;
+      renderSessionListFromCache();
+      showToast('Moved to '+p.name);
+    };
+    picker.appendChild(item);
+  }
+  // Position relative to anchor
+  anchorEl.style.position='relative';
+  anchorEl.appendChild(picker);
+  // Close on outside click
+  const close=(e)=>{if(!picker.contains(e.target)&&e.target!==anchorEl){picker.remove();document.removeEventListener('click',close);}};
+  setTimeout(()=>document.addEventListener('click',close),0);
+}
+
+function _startProjectCreate(bar, addBtn){
+  const inp=document.createElement('input');
+  inp.className='project-create-input';
+  inp.placeholder='Project name';
+  const finish=async(save)=>{
+    if(save&&inp.value.trim()){
+      const color=PROJECT_COLORS[_allProjects.length%PROJECT_COLORS.length];
+      await api('/api/projects/create',{method:'POST',body:JSON.stringify({name:inp.value.trim(),color})});
+      await renderSessionList();
+      showToast('Project created');
+    }else{
+      inp.replaceWith(addBtn);
+    }
+  };
+  inp.onkeydown=(e)=>{
+    if(e.key==='Enter'){e.preventDefault();finish(true);}
+    if(e.key==='Escape'){e.preventDefault();finish(false);}
+  };
+  inp.onblur=()=>finish(false);
+  addBtn.replaceWith(inp);
+  setTimeout(()=>inp.focus(),10);
+}
+
+function _startProjectRename(proj, chip){
+  const inp=document.createElement('input');
+  inp.className='project-create-input';
+  inp.value=proj.name;
+  const finish=async(save)=>{
+    if(save&&inp.value.trim()&&inp.value.trim()!==proj.name){
+      await api('/api/projects/rename',{method:'POST',body:JSON.stringify({project_id:proj.project_id,name:inp.value.trim()})});
+      await renderSessionList();
+      showToast('Project renamed');
+    }else{
+      renderSessionListFromCache();
+    }
+  };
+  inp.onkeydown=(e)=>{
+    if(e.key==='Enter'){e.preventDefault();finish(true);}
+    if(e.key==='Escape'){e.preventDefault();finish(false);}
+  };
+  inp.onblur=()=>finish(false);
+  inp.onclick=(e)=>e.stopPropagation();
+  chip.replaceWith(inp);
+  setTimeout(()=>{inp.focus();inp.select();},10);
+}
+
+async function _confirmDeleteProject(proj){
+  if(!confirm('Delete project "'+proj.name+'"? Sessions will be unassigned but not deleted.')){return;}
+  await api('/api/projects/delete',{method:'POST',body:JSON.stringify({project_id:proj.project_id})});
+  if(_activeProject===proj.project_id) _activeProject=null;
+  await renderSessionList();
+  showToast('Project deleted');
 }
 
 

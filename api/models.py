@@ -10,7 +10,7 @@ from pathlib import Path
 import api.config as _cfg
 from api.config import (
     SESSION_DIR, SESSION_INDEX_FILE, SESSIONS, SESSIONS_MAX,
-    LOCK, DEFAULT_WORKSPACE, DEFAULT_MODEL
+    LOCK, DEFAULT_WORKSPACE, DEFAULT_MODEL, PROJECTS_FILE
 )
 from api.workspace import get_last_workspace
 
@@ -34,8 +34,8 @@ def _write_session_index():
 
 
 class Session:
-    def __init__(self, session_id=None, title='Untitled', workspace=str(DEFAULT_WORKSPACE), model=DEFAULT_MODEL, messages=None, created_at=None, updated_at=None, tool_calls=None, pinned=False, archived=False, **kwargs):
-        self.session_id = session_id or uuid.uuid4().hex[:12]; self.title = title; self.workspace = str(Path(workspace).expanduser().resolve()); self.model = model; self.messages = messages or []; self.tool_calls = tool_calls or []; self.created_at = created_at or time.time(); self.updated_at = updated_at or time.time(); self.pinned = bool(pinned); self.archived = bool(archived)
+    def __init__(self, session_id=None, title='Untitled', workspace=str(DEFAULT_WORKSPACE), model=DEFAULT_MODEL, messages=None, created_at=None, updated_at=None, tool_calls=None, pinned=False, archived=False, project_id=None, **kwargs):
+        self.session_id = session_id or uuid.uuid4().hex[:12]; self.title = title; self.workspace = str(Path(workspace).expanduser().resolve()); self.model = model; self.messages = messages or []; self.tool_calls = tool_calls or []; self.created_at = created_at or time.time(); self.updated_at = updated_at or time.time(); self.pinned = bool(pinned); self.archived = bool(archived); self.project_id = project_id or None
     @property
     def path(self): return SESSION_DIR / f'{self.session_id}.json'
     def save(self): self.updated_at = time.time(); self.path.write_text(json.dumps(self.__dict__, ensure_ascii=False, indent=2), encoding='utf-8'); _write_session_index()
@@ -44,7 +44,7 @@ class Session:
         p = SESSION_DIR / f'{sid}.json'
         if not p.exists(): return None
         return cls(**json.loads(p.read_text(encoding='utf-8')))
-    def compact(self): return {'session_id': self.session_id, 'title': self.title, 'workspace': self.workspace, 'model': self.model, 'message_count': len(self.messages), 'created_at': self.created_at, 'updated_at': self.updated_at, 'pinned': self.pinned, 'archived': self.archived}
+    def compact(self): return {'session_id': self.session_id, 'title': self.title, 'workspace': self.workspace, 'model': self.model, 'message_count': len(self.messages), 'created_at': self.created_at, 'updated_at': self.updated_at, 'pinned': self.pinned, 'archived': self.archived, 'project_id': self.project_id}
 
 def get_session(sid):
     with LOCK:
@@ -114,3 +114,19 @@ def title_from(messages, fallback='Untitled'):
             if text:
                 return text[:64]
     return fallback
+
+
+# ── Project helpers ──────────────────────────────────────────────────────────
+
+def load_projects():
+    """Load project list from disk. Returns list of project dicts."""
+    if not PROJECTS_FILE.exists():
+        return []
+    try:
+        return json.loads(PROJECTS_FILE.read_text(encoding='utf-8'))
+    except Exception:
+        return []
+
+def save_projects(projects):
+    """Write project list to disk."""
+    PROJECTS_FILE.write_text(json.dumps(projects, ensure_ascii=False, indent=2), encoding='utf-8')

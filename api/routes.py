@@ -23,6 +23,7 @@ from api.helpers import require, bad, safe_resolve, j, t, read_body
 from api.models import (
     Session, get_session, new_session, all_sessions, title_from,
     _write_session_index, SESSION_INDEX_FILE,
+    load_projects, save_projects,
 )
 from api.workspace import (
     load_workspaces, save_workspaces, get_last_workspace, set_last_workspace,
@@ -92,6 +93,9 @@ def handle_get(handler, parsed):
 
     if parsed.path == '/api/sessions':
         return j(handler, {'sessions': all_sessions()})
+
+    if parsed.path == '/api/projects':
+        return j(handler, {'projects': load_projects()})
 
     if parsed.path == '/api/session/export':
         return _handle_session_export(handler, parsed)
@@ -326,6 +330,61 @@ def handle_post(handler, parsed):
         s.archived = bool(body.get('archived', True))
         s.save()
         return j(handler, {'ok': True, 'session': s.compact()})
+
+    # ── Session move to project (POST) ──
+    if parsed.path == '/api/session/move':
+        try: require(body, 'session_id')
+        except ValueError as e: return bad(handler, str(e))
+        try: s = get_session(body['session_id'])
+        except KeyError: return bad(handler, 'Session not found', 404)
+        s.project_id = body.get('project_id') or None
+        s.save()
+        return j(handler, {'ok': True, 'session': s.compact()})
+
+    # ── Project CRUD (POST) ──
+    if parsed.path == '/api/projects/create':
+        try: require(body, 'name')
+        except ValueError as e: return bad(handler, str(e))
+        projects = load_projects()
+        proj = {'project_id': uuid.uuid4().hex[:12], 'name': body['name'], 'color': body.get('color'), 'created_at': time.time()}
+        projects.append(proj)
+        save_projects(projects)
+        return j(handler, {'ok': True, 'project': proj})
+
+    if parsed.path == '/api/projects/rename':
+        try: require(body, 'project_id', 'name')
+        except ValueError as e: return bad(handler, str(e))
+        projects = load_projects()
+        proj = next((p for p in projects if p['project_id'] == body['project_id']), None)
+        if not proj: return bad(handler, 'Project not found', 404)
+        proj['name'] = body['name']
+        if 'color' in body: proj['color'] = body['color']
+        save_projects(projects)
+        return j(handler, {'ok': True, 'project': proj})
+
+    if parsed.path == '/api/projects/delete':
+        try: require(body, 'project_id')
+        except ValueError as e: return bad(handler, str(e))
+        projects = load_projects()
+        proj = next((p for p in projects if p['project_id'] == body['project_id']), None)
+        if not proj: return bad(handler, 'Project not found', 404)
+        projects = [p for p in projects if p['project_id'] != body['project_id']]
+        save_projects(projects)
+        # Unassign all sessions that belonged to this project
+        if SESSION_INDEX_FILE.exists():
+            try:
+                index = json.loads(SESSION_INDEX_FILE.read_text(encoding='utf-8'))
+                for entry in index:
+                    if entry.get('project_id') == body['project_id']:
+                        try:
+                            s = get_session(entry['session_id'])
+                            s.project_id = None
+                            s.save()
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        return j(handler, {'ok': True})
 
     # ── Session import from JSON (POST) ──
     if parsed.path == '/api/session/import':
