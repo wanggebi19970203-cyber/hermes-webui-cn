@@ -5,6 +5,19 @@
 
 ---
 
+## [v0.36.3] Configurable Assistant Name
+*April 6, 2026 | 449 tests*
+
+### Features
+- **Configurable bot name.** New "Assistant Name" field in Settings panel.
+  Display name updates throughout the UI: sidebar, topbar, message roles,
+  login page, browser tab title, and composer placeholder. Defaults to
+  "Hermes". Configurable via settings or `HERMES_WEBUI_BOT_NAME` env var.
+  Server-side sanitization prevents empty names and escapes HTML for the
+  login page. (PR #135, based on #131 by @TaraTheStar)
+
+---
+
 ## [v0.36.2] OpenRouter model routing fix
 *April 5, 2026 | 440 tests*
 
