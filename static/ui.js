@@ -692,8 +692,8 @@ function buildToolCard(tc){
   const cardClass='tool-card'+(tc.done===false?' tool-card-running':'')+(isSubagent?' tool-card-subagent':'');
   // Clean up subagent preview: strip leading 🔀 emoji since the icon already shows it
   let displayName=tc.name;
-  if(isSubagent) displayName='Subagent';
-  if(isDelegation) displayName='Delegate task';
+  if(isSubagent) displayName=t('subagent');
+  if(isDelegation) displayName=t('delegate_task');
   let previewText=tc.preview||displaySnippet||'';
   if(isSubagent) previewText=previewText.replace(/^🔀\s*/,'');
   row.innerHTML=`
@@ -711,7 +711,7 @@ function buildToolCard(tc){
         }</div>`:''}
         ${displaySnippet?`<div class="tool-card-result">
           <pre>${esc(displaySnippet)}</pre>
-          ${hasMore?`<button class="tool-card-more" data-full="${esc(tc.snippet||'').replace(/"/g,'&quot;')}" data-short="${esc(displaySnippet||'').replace(/"/g,'&quot;')}" onclick="event.stopPropagation();const p=this.previousElementSibling;const full=this.dataset.full;const short=this.dataset.short;p.textContent=p.textContent===short?full:short;this.textContent=p.textContent===short?'Show more':'Show less'">Show more</button>`:''}
+          ${hasMore?`<button class="tool-card-more" data-full="${esc(tc.snippet||'').replace(/"/g,'&quot;')}" data-short="${esc(displaySnippet||'').replace(/"/g,'&quot;')}" data-more="${esc(t('show_more'))}" data-less="${esc(t('show_less'))}" onclick="event.stopPropagation();const p=this.previousElementSibling;const full=this.dataset.full;const short=this.dataset.short;p.textContent=p.textContent===short?full:short;this.textContent=p.textContent===short?this.dataset.more:this.dataset.less">${esc(t('show_more'))}</button>`:''}
         </div>`:''}
       </div>`:''}
     </div>`;
@@ -762,7 +762,7 @@ function editMessage(btn) {
   // Action bar below the textarea
   const bar = document.createElement('div');
   bar.className = 'msg-edit-bar';
-  bar.innerHTML = `<button class="msg-edit-send">Send edit</button><button class="msg-edit-cancel">Cancel</button>`;
+  bar.innerHTML = `<button class="msg-edit-send">${t('send_edit')}</button><button class="msg-edit-cancel">${t('cancel')}</button>`;
   ta.after(bar);
 
   bar.querySelector('.msg-edit-send').onclick = async () => {
@@ -917,7 +917,8 @@ function renderMermaidBlocks(){
 function appendThinking(){
   $('emptyState').style.display='none';
   const row=document.createElement('div');row.className='msg-row';row.id='thinkingRow';
-  row.innerHTML=`<div class="msg-role assistant"><div class="role-icon assistant">H</div>Hermes</div><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  const _bn=window._botName||'Hermes';
+  row.innerHTML=`<div class="msg-role assistant"><div class="role-icon assistant">${_bn.charAt(0).toUpperCase()}</div>${esc(_bn)}</div><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
   $('msgInner').appendChild(row);scrollToBottom();
 }
 function removeThinking(){const el=$('thinkingRow');if(el)el.remove();}

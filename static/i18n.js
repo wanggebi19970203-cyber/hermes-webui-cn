@@ -402,6 +402,28 @@ const LOCALES = {
     compact_prompt: 'Please compress and summarize the conversation context to free up space.',
     // Clear conversation button
     clear_btn: 'Clear',
+    // Message edit
+    send_edit: 'Send edit',
+    // Tool card display
+    subagent: 'Subagent',
+    delegate_task: 'Delegate task',
+    // File upload messages
+    uploaded_files: (n, names) => `I've uploaded ${n} file(s): ${names}`,
+    attached_files: (names) => `[Attached files: ${names}]`,
+    uploaded_prefix: (names) => `Uploaded: ${names}`,
+    file_upload: '(file upload)',
+    // Cron delivery options
+    deliver_local: 'Local (save output only)',
+    deliver_discord: 'Discord',
+    deliver_telegram: 'Telegram',
+    // Misc
+    model_label: 'MODEL',
+    sidebar_workspace: 'Workspace',
+    menu_title: 'Menu',
+    download_file_title: 'Download file to your computer',
+    // Tool card show more/less
+    show_more: 'Show more',
+    show_less: 'Show less',
   },
 
   de: {
@@ -936,6 +958,72 @@ const LOCALES = {
     compact_prompt: '请压缩并总结对话上下文以释放空间。',
     // Clear conversation button
     clear_btn: '清除',
+    // Message edit
+    send_edit: '发送编辑',
+    // Tool card display
+    subagent: '子代理',
+    delegate_task: '委派任务',
+    // File upload messages
+    uploaded_files: (n, names) => `已上传 ${n} 个文件：${names}`,
+    attached_files: (names) => `[附件：${names}]`,
+    uploaded_prefix: (names) => `已上传：${names}`,
+    file_upload: '（文件上传）',
+    // Cron delivery options
+    deliver_local: '本地（仅保存输出）',
+    deliver_discord: 'Discord',
+    deliver_telegram: 'Telegram',
+    // Misc
+    model_label: '模型',
+    sidebar_workspace: '工作区',
+    menu_title: '菜单',
+    download_file_title: '下载文件到本地',
+    // Tool card show more/less
+    show_more: '展开更多',
+    show_less: '收起',
+    // ── Missing zh keys (fall back to en without these) ──
+    cancel: '取消',
+    create_job: '创建任务',
+    current_task_list: '当前任务列表',
+    disable_auth: '关闭鉴权',
+    download_transcript: '下载为 Markdown',
+    editing: '编辑中',
+    empty_title: '有什么可以帮你的？',
+    empty_subtitle: '提问、运行命令、探索文件，或管理你的定时任务。',
+    filter_conversations: '筛选会话...',
+    import: '导入',
+    loading: '加载中…',
+    new_conversation: '新建对话',
+    new_job: '新建任务',
+    new_profile: '新建 Profile',
+    new_skill: '新建 Skill',
+    password_placeholder: '输入新密码…',
+    personal_memory: '个人记忆',
+    save_skill: '保存 Skill',
+    scheduled_jobs: '定时任务',
+    search_skills: '搜索 Skills…',
+    settings_desc_bot_name: '界面上助手的显示名称，默认为 Hermes。',
+    settings_desc_check_updates: '当 WebUI 或 Agent 有新版本时显示提示横幅。会定期在后台执行 git fetch。',
+    settings_desc_cli_sessions: '将 Hermes CLI（state.db）中的会话合并到会话列表中。点击 CLI 会话可导入并继续对话。',
+    settings_desc_notifications: '当回复在后台完成时，显示系统通知。',
+    settings_desc_password: '输入新密码以设置或更改。留空则保持当前设置。',
+    settings_desc_sound: '助手完成回复时播放提示音。',
+    settings_desc_sync_insights: '将 WebUI token 用量同步到 state.db，使 `hermes /insights` 包含浏览器会话数据。默认关闭。',
+    settings_desc_token_usage: '在每条助手回复下方显示输入/输出 token 数量。也可通过 /usage 切换。',
+    settings_label_notifications: '浏览器通知',
+    settings_label_sound: '提示音',
+    sign_out: '退出登录',
+    suggest_files: '这个工作区里有什么文件？',
+    suggest_plan: '帮我规划一个小项目。',
+    suggest_schedule: '我今天的日程是什么？',
+    tab_chat: '对话',
+    tab_memory: '记忆',
+    tab_profiles: 'Profiles',
+    tab_skills: 'Skills',
+    tab_tasks: '任务',
+    tab_todos: '待办',
+    tab_workspaces: '工作区',
+    transcript: '导出',
+    workspace_desc: '为你的会话添加和切换工作区。',
   },
 };
 

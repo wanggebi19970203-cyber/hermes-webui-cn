@@ -27,12 +27,12 @@ async function send(){
   catch(e){if(!text){setStatus(`❌ ${e.message}`);return;}}
 
   let msgText=text;
-  if(uploaded.length&&!msgText)msgText=`I've uploaded ${uploaded.length} file(s): ${uploaded.join(', ')}`;
-  else if(uploaded.length)msgText=`${text}\n\n[Attached files: ${uploaded.join(', ')}]`;
+  if(uploaded.length&&!msgText)msgText=t('uploaded_files', uploaded.length, uploaded.join(', '));
+  else if(uploaded.length)msgText=text+'\n\n'+t('attached_files', uploaded.join(', '));
   if(!msgText){setStatus(t('nothing_to_send'));return;}
 
   $('msg').value='';autoResize();
-  const displayText=text||(uploaded.length?`Uploaded: ${uploaded.join(', ')}`:'(file upload)');
+  const displayText=text||(uploaded.length?t('uploaded_prefix', uploaded.join(', ')):t('file_upload'));
   const userMsg={role:'user',content:displayText,attachments:uploaded.length?uploaded:undefined,_ts:Date.now()/1000};
   S.toolCalls=[];  // clear tool calls from previous turn
   clearLiveToolCards();  // clear any leftover live cards from last turn
@@ -306,7 +306,7 @@ async function send(){
     if(S.session&&S.session.session_id===activeSid){
       S.activeStreamId=null;const _cbe=$('btnCancel');if(_cbe)_cbe.style.display='none';
       clearLiveToolCards();if(!assistantText)removeThinking();
-      S.messages.push({role:'assistant',content:`**Error:** ${t('connection_lost')}`});renderMessages();
+      S.messages.push({role:'assistant',content:`**${t('error_prefix')}${t('connection_lost')}`});renderMessages();
     }else{
       // User switched away — show background error banner
       if(typeof trackBackgroundError==='function'){

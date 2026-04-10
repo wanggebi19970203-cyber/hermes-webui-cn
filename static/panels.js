@@ -76,7 +76,7 @@ async function loadCrons() {
       // Eagerly load last output for visible items
       loadCronOutput(job.id);
     }
-  } catch(e) { box.innerHTML = `<div style="padding:12px;color:var(--accent);font-size:12px">Error: ${esc(e.message)}</div>`; }
+  } catch(e) { box.innerHTML = `<div style="padding:12px;color:var(--accent);font-size:12px">${t('error_prefix')}${esc(e.message)}</div>`; }
 }
 
 let _cronSelectedSkills=[];
@@ -92,6 +92,15 @@ function toggleCronForm(){
     $('cronFormSchedule').value='';
     $('cronFormPrompt').value='';
     $('cronFormDeliver').value='local';
+    // Populate delivery options with localized text
+    const deliverSel=$('cronFormDeliver');
+    if(deliverSel){
+      deliverSel.innerHTML=`
+        <option value="local">${t('deliver_local')}</option>
+        <option value="discord">${t('deliver_discord')}</option>
+        <option value="telegram">${t('deliver_telegram')}</option>`;
+      deliverSel.value='local';
+    }
     $('cronFormError').style.display='none';
     _cronSelectedSkills=[];
     _renderCronSkillTags();
@@ -360,7 +369,7 @@ async function loadSkills() {
     const data = await api('/api/skills');
     _skillsData = data.skills || [];
     renderSkills(_skillsData);
-  } catch(e) { box.innerHTML = `<div style="padding:12px;color:var(--accent);font-size:12px">Error: ${esc(e.message)}</div>`; }
+  } catch(e) { box.innerHTML = `<div style="padding:12px;color:var(--accent);font-size:12px">${t('error_prefix')}${esc(e.message)}</div>`; }
 }
 
 function renderSkills(skills) {
@@ -707,7 +716,7 @@ async function loadProfilesPanel() {
       panel.appendChild(card);
     }
   } catch (e) {
-    panel.innerHTML = `<div style="color:var(--accent);font-size:12px;padding:12px">Error: ${esc(e.message)}</div>`;
+    panel.innerHTML = `<div style="color:var(--accent);font-size:12px;padding:12px">${t('error_prefix')}${esc(e.message)}</div>`;
   }
 }
 
@@ -896,7 +905,7 @@ async function loadMemory(force) {
           ? `<div class="memory-content preview-md">${renderMd(data.user)}</div>`
           : `<div class="memory-empty">${t('no_profile_yet')}</div>`}
       </div>`;
-  } catch(e) { panel.innerHTML = `<div style="color:var(--accent);font-size:12px">Error: ${esc(e.message)}</div>`; }
+  } catch(e) { panel.innerHTML = `<div style="color:var(--accent);font-size:12px">${t('error_prefix')}${esc(e.message)}</div>`; }
 }
 
 // Drag and drop

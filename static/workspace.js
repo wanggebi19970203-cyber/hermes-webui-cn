@@ -134,7 +134,7 @@ function updateEditBtn(){
   btn.innerHTML = editing ? `&#128190; ${t('save')}` : `&#9998; ${t('edit')}`;
   btn.title = editing ? t('save_title') : t('edit_title');
   btn.style.color = editing ? 'var(--blue)' : '';
-  if(_previewDirty) btn.innerHTML = '&#128190; Save*';
+  if(_previewDirty) btn.innerHTML = `&#128190; ${t('save')}*`;
 }
 
 async function toggleEditMode(){

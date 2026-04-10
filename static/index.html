@@ -129,10 +129,10 @@
         </div>
         <div id="profileFormError" style="font-size:11px;color:var(--accent);margin-top:6px;display:none"></div>
       </div>
-      <div style="flex:1;overflow-y:auto;padding:0 12px 12px" id="profilesPanel"><div style="color:var(--muted);font-size:12px">Loading...</div></div>
+      <div style="flex:1;overflow-y:auto;padding:0 12px 12px" id="profilesPanel"><div style="color:var(--muted);font-size:12px" data-i18n="loading">Loading...</div></div>
     </div>
     <div class="sidebar-bottom">
-      <div class="field-label" style="font-size:10px;letter-spacing:.07em;margin-bottom:4px">MODEL</div>
+      <div class="field-label" style="font-size:10px;letter-spacing:.07em;margin-bottom:4px" data-i18n="model_label">MODEL</div>
       <select id="modelSelect">
         <optgroup label="OpenAI">
           <option value="openai/gpt-5.4-mini">GPT-5.4 Mini</option>
@@ -155,7 +155,7 @@
         <div id="sidebarWsDisplay" style="display:flex;align-items:center;gap:7px;padding:0 0 8px;cursor:pointer;border-radius:8px;transition:background .15s" onclick="toggleWsDropdown()" title="Switch workspace" data-i18n-title="manage_workspaces">
           <span style="font-size:14px;opacity:.7">&#128193;</span>
           <div style="min-width:0;flex:1">
-            <div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebarWsName">Workspace</div>
+            <div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebarWsName" data-i18n="sidebar_workspace">Workspace</div>
             <div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px" id="sidebarWsPath"></div>
           </div>
           <span style="font-size:10px;color:var(--muted);flex-shrink:0">&#9662;</span>
@@ -173,7 +173,7 @@
   </aside>
   <main class="main">
     <div class="topbar">
-      <button class="mobile-hamburger" id="btnHamburger" onclick="toggleMobileSidebar()" title="Menu">
+      <button class="mobile-hamburger" id="btnHamburger" onclick="toggleMobileSidebar()" title="Menu" data-i18n-title="menu_title">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
       <div style="flex:1;min-width:0;overflow:hidden"><div class="topbar-title" id="topbarTitle">Hermes</div><div class="topbar-meta" id="topbarMeta" data-i18n="new_conversation">Start a new conversation</div></div>
@@ -318,8 +318,8 @@
       <div class="preview-path" id="previewPath">
         <span id="previewPathText"></span>
         <span class="preview-badge" id="previewBadge"></span>
-        <button id="btnDownloadFile" class="panel-icon-btn" style="margin-left:auto;font-size:12px;width:auto;padding:2px 8px" onclick="downloadFile(_previewCurrentPath)" title="Download file to your computer">&#8681; <span data-i18n="download_file">Download</span></button>
-        <button id="btnEditFile" class="panel-icon-btn" style="font-size:12px;width:auto;padding:2px 8px;display:none" onclick="toggleEditMode()">&#9998; Edit</button>
+        <button id="btnDownloadFile" class="panel-icon-btn" style="margin-left:auto;font-size:12px;width:auto;padding:2px 8px" onclick="downloadFile(_previewCurrentPath)" title="Download file to your computer" data-i18n-title="download_file_title">&#8681; <span data-i18n="download_file">Download</span></button>
+        <button id="btnEditFile" class="panel-icon-btn" style="font-size:12px;width:auto;padding:2px 8px;display:none" onclick="toggleEditMode()">&#9998; <span data-i18n="edit">Edit</span></button>
       </div>
       <pre class="preview-code" id="previewCode"></pre>
       <div class="preview-img-wrap" id="previewImgWrap" style="display:none"><img class="preview-img" id="previewImg" src="" alt=""></div>
