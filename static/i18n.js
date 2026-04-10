@@ -424,22 +424,6 @@ const LOCALES = {
     // Tool card show more/less
     show_more: 'Show more',
     show_less: 'Show less',
-    // Font settings
-    settings_label_font_size: 'Font size',
-    settings_desc_font_size: 'Adjust the UI font size. Changes apply immediately.',
-    settings_label_font_theme: 'Font theme',
-    settings_desc_font_theme: 'Choose a font family for the interface. Chinese fonts work best for Chinese content.',
-    font_size_small: 'Small (12px)',
-    font_size_default: 'Default (14px)',
-    font_size_medium: 'Medium (15px)',
-    font_size_large: 'Large (16px)',
-    font_size_xlarge: 'Extra large (18px)',
-    font_theme_default: 'System default',
-    font_theme_noto: 'Noto Sans SC',
-    font_theme_pingfang: 'PingFang SC (macOS)',
-    font_theme_yahei: 'Microsoft YaHei (Windows)',
-    font_theme_monospace: 'Monospace (coding)',
-    font_theme_serif: 'Serif (reading)',
   },
 
   de: {
@@ -996,22 +980,6 @@ const LOCALES = {
     // Tool card show more/less
     show_more: '展开更多',
     show_less: '收起',
-    // Font settings
-    settings_label_font_size: '字体大小',
-    settings_desc_font_size: '调整界面字体大小，修改后立即生效。',
-    settings_label_font_theme: '字体主题',
-    settings_desc_font_theme: '选择界面使用的字体，中文用户推荐苹方、思源黑体或微软雅黑。',
-    font_size_small: '小 (12px)',
-    font_size_default: '默认 (14px)',
-    font_size_medium: '中 (15px)',
-    font_size_large: '大 (16px)',
-    font_size_xlarge: '特大 (18px)',
-    font_theme_default: '系统默认',
-    font_theme_noto: '思源黑体 (Noto Sans SC)',
-    font_theme_pingfang: '苹方 (PingFang, macOS)',
-    font_theme_yahei: '微软雅黑 (Windows)',
-    font_theme_monospace: '等宽编程 (JetBrains Mono)',
-    font_theme_serif: '宋体 (Noto Serif SC)',
     // ── Missing zh keys (fall back to en without these) ──
     cancel: '取消',
     create_job: '创建任务',
