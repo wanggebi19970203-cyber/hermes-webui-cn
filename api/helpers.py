@@ -43,8 +43,8 @@ def _security_headers(handler):
         'Content-Security-Policy',
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "img-src 'self' data:; font-src 'self' data:; connect-src 'self'; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+        "img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; "
         "base-uri 'self'; form-action 'self'"
     )
     handler.send_header(
