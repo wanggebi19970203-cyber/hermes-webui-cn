@@ -3,8 +3,8 @@
 > Goal: Full 1:1 parity with the Hermes CLI experience via a clean dark web UI.
 > Everything you can do from the CLI terminal, you can do from this UI.
 >
-> Last updated: v0.39.0 (April 8, 2026)
-> Tests: 499 total (499 passing, 0 failures)
+> Last updated: v0.39.1-cn (April 10, 2026)
+> Tests: 564 total (524 passing, 40 skipped without hermes-agent)
 > Source: <repo>/
 
 ---
@@ -50,6 +50,8 @@
 | v0.36–v0.37 | Model routing, personality config, tool card reload, duplicate model fixes | Model routing by provider prefix, personality via config.yaml, tool cards reload on page refresh | 466 |
 | v0.38.0–v0.38.6 | Model selector, custom endpoints, OLED theme, reasoning display, insights sync | Custom endpoint URL fix, OLED theme, top-level reasoning field fix, message_count sync to state.db | 466 |
 | v0.39.0 | Security hardening (Sprint 29) | CSRF, PBKDF2, rate limiting, session ID validation, SSRF, ENV_LOCK, XSS, HMAC, skills traversal, secure cookie, error sanitization, startup warning | 499 |
+| v0.39.1-cn | Chinese-first localization fork | Default locale switched to zh, login/settings/panels/session actions moved onto i18n keys, reduced mixed English UI, tests updated for localized login | 564 |
+| v0.39.2-cn | Chinese localization finish | Scan and fix all remaining hardcoded English in static/*.js and index.html; add ~30 new i18n keys (error messages, settings options, profile labels, transcript fields); all user-visible text now goes through t() | 564 |
 
 ---
 
@@ -168,6 +170,8 @@
 ### Configuration
 - [x] Settings panel (default model, default workspace) (Sprint 12)
 - [x] Send key preference (Enter or Ctrl+Enter) (Sprint 17)
+- [x] Chinese-first locale bundle with zh default for this fork (v0.39.1-cn)
+- [x] Chinese localization finish — all user-visible text goes through t() (v0.39.2-cn)
 - [x] Password authentication (Sprint 19)
 - [ ] Enable/disable toolsets per session (deferred)
 

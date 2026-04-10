@@ -119,7 +119,7 @@ def test_login_page_empty_name_does_not_crash():
     # Instead, verify that /login returns 200 reliably.
     html, status = get_raw("/login")
     assert status == 200
-    assert "Sign in" in html
+    assert ("Sign in" in html) or ("登录" in html)
 
 
 def test_login_page_xss_escaped():

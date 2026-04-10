@@ -58,7 +58,7 @@ def test_login_page_served():
     with urllib.request.urlopen(req, timeout=10) as r:
         html = r.read().decode()
         assert r.status == 200
-        assert "Sign in" in html
+        assert ("Sign in" in html) or ("登录" in html)
         assert "Hermes" in html
 
 

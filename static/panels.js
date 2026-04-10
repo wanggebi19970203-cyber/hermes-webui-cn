@@ -24,7 +24,7 @@ async function loadCrons() {
   try {
     const data = await api('/api/crons');
     if (!data.jobs || !data.jobs.length) {
-      box.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:12px">No scheduled jobs found.</div>';
+      box.innerHTML = `<div style="padding:16px;color:var(--muted);font-size:12px">${t('no_scheduled_jobs_found')}</div>`;
       return;
     }
     box.innerHTML = '';
@@ -33,42 +33,42 @@ async function loadCrons() {
       item.className = 'cron-item';
       item.id = 'cron-' + job.id;
       const statusClass = job.enabled === false ? 'disabled' : job.state === 'paused' ? 'paused' : job.last_status === 'error' ? 'error' : 'active';
-      const statusLabel = job.enabled === false ? 'off' : job.state === 'paused' ? 'paused' : job.last_status === 'error' ? 'error' : 'active';
-      const nextRun = job.next_run_at ? new Date(job.next_run_at).toLocaleString() : 'N/A';
-      const lastRun = job.last_run_at ? new Date(job.last_run_at).toLocaleString() : 'never';
+      const statusLabel = job.enabled === false ? t('cron_status_off') : job.state === 'paused' ? t('cron_status_paused') : job.last_status === 'error' ? t('cron_status_error') : t('cron_status_active');
+      const nextRun = job.next_run_at ? new Date(job.next_run_at).toLocaleString() : t('not_available');
+      const lastRun = job.last_run_at ? new Date(job.last_run_at).toLocaleString() : t('never');
       item.innerHTML = `
         <div class="cron-header" onclick="toggleCron('${job.id}')">
           <span class="cron-name" title="${esc(job.name)}">${esc(job.name)}</span>
           <span class="cron-status ${statusClass}">${statusLabel}</span>
         </div>
         <div class="cron-body" id="cron-body-${job.id}">
-          <div class="cron-schedule">&#128337; ${esc(job.schedule_display || job.schedule?.expression || '')} &nbsp;|&nbsp; Next: ${esc(nextRun)} &nbsp;|&nbsp; Last: ${esc(lastRun)}</div>
+          <div class="cron-schedule">&#128337; ${esc(job.schedule_display || job.schedule?.expression || '')} &nbsp;|&nbsp; ${esc(t('next_label'))}: ${esc(nextRun)} &nbsp;|&nbsp; ${esc(t('last_label'))}: ${esc(lastRun)}</div>
           <div class="cron-prompt">${esc((job.prompt||'').slice(0,300))}${(job.prompt||'').length>300?'…':''}</div>
           <div class="cron-actions">
-            <button class="cron-btn run" onclick="cronRun('${job.id}')">&#9654; Run now</button>
-            ${statusLabel==='paused'
-              ? `<button class="cron-btn" onclick="cronResume('${job.id}')">&#9654;&#9474; Resume</button>`
-              : `<button class="cron-btn pause" onclick="cronPause('${job.id}')">&#9646;&#9646; Pause</button>`}
-            <button class="cron-btn" onclick="cronEditOpen('${job.id}',${JSON.stringify(job).replace(/"/g,'&quot;')})">&#9998; Edit</button>
-            <button class="cron-btn" style="border-color:rgba(201,168,76,.3);color:var(--accent)" onclick="cronDelete('${job.id}')">&#128465; Delete</button>
+            <button class="cron-btn run" onclick="cronRun('${job.id}')">&#9654; ${t('run_now')}</button>
+            ${job.state==='paused'
+              ? `<button class="cron-btn" onclick="cronResume('${job.id}')">&#9654;&#9474; ${t('resume')}</button>`
+              : `<button class="cron-btn pause" onclick="cronPause('${job.id}')">&#9646;&#9646; ${t('pause')}</button>`}
+            <button class="cron-btn" onclick="cronEditOpen('${job.id}',${JSON.stringify(job).replace(/"/g,'&quot;')})">&#9998; ${t('edit')}</button>
+            <button class="cron-btn" style="border-color:rgba(201,168,76,.3);color:var(--accent)" onclick="cronDelete('${job.id}')">&#128465; ${t('delete_item')}</button>
           </div>
           <!-- Inline edit form, hidden by default -->
           <div id="cron-edit-${job.id}" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
-            <input id="cron-edit-name-${job.id}" placeholder="Job name" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:5px;box-sizing:border-box">
-            <input id="cron-edit-schedule-${job.id}" placeholder="Schedule" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:5px;box-sizing:border-box">
-            <textarea id="cron-edit-prompt-${job.id}" rows="3" placeholder="Prompt" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:none;font-family:inherit;margin-bottom:5px;box-sizing:border-box"></textarea>
+            <input id="cron-edit-name-${job.id}" placeholder="${t('job_name')}" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:5px;box-sizing:border-box">
+            <input id="cron-edit-schedule-${job.id}" placeholder="${t('schedule')}" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:5px;box-sizing:border-box">
+            <textarea id="cron-edit-prompt-${job.id}" rows="3" placeholder="${t('prompt_label')}" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:none;font-family:inherit;margin-bottom:5px;box-sizing:border-box"></textarea>
             <div id="cron-edit-err-${job.id}" style="font-size:11px;color:var(--accent);display:none;margin-bottom:5px"></div>
             <div style="display:flex;gap:6px">
-              <button class="cron-btn run" style="flex:1" onclick="cronEditSave('${job.id}')">Save</button>
-              <button class="cron-btn" style="flex:1" onclick="cronEditClose('${job.id}')">Cancel</button>
+              <button class="cron-btn run" style="flex:1" onclick="cronEditSave('${job.id}')">${t('save')}</button>
+              <button class="cron-btn" style="flex:1" onclick="cronEditClose('${job.id}')">${t('cancel')}</button>
             </div>
           </div>
           <div id="cron-output-${job.id}">
             <div class="cron-last-header" style="display:flex;align-items:center;justify-content:space-between">
-              <span>Last output</span>
-              <button class="cron-btn" style="padding:1px 8px;font-size:10px" onclick="loadCronHistory('${job.id}',this)">All runs</button>
+              <span>${t('last_output')}</span>
+              <button class="cron-btn" style="padding:1px 8px;font-size:10px" onclick="loadCronHistory('${job.id}',this)">${t('all_runs')}</button>
             </div>
-            <div class="cron-last" id="cron-out-text-${job.id}" style="color:var(--muted);font-size:11px">Loading…</div>
+            <div class="cron-last" id="cron-out-text-${job.id}" style="color:var(--muted);font-size:11px">${t('loading')}</div>
             <div id="cron-history-${job.id}" style="display:none"></div>
           </div>
         </div>`;
@@ -164,18 +164,18 @@ async function submitCronCreate(){
   const deliver=$('cronFormDeliver').value;
   const errEl=$('cronFormError');
   errEl.style.display='none';
-  if(!schedule){errEl.textContent='Schedule is required (e.g. "0 9 * * *" or "every 1h")';errEl.style.display='';return;}
-  if(!prompt){errEl.textContent='Prompt is required';errEl.style.display='';return;}
+  if(!schedule){errEl.textContent=t('schedule_required_example');errEl.style.display='';return;}
+  if(!prompt){errEl.textContent=t('prompt_required');errEl.style.display='';return;}
   try{
     const body={schedule,prompt,deliver};
     if(name)body.name=name;
     if(_cronSelectedSkills.length)body.skills=_cronSelectedSkills;
     await api('/api/crons/create',{method:'POST',body:JSON.stringify(body)});
     toggleCronForm();
-    showToast('Job created ✓');
+    showToast(t('job_created'));
     await loadCrons();
   }catch(e){
-    errEl.textContent='Error: '+e.message;errEl.style.display='';
+    errEl.textContent=t('error_prefix')+e.message;errEl.style.display='';
   }
 }
 
@@ -192,7 +192,7 @@ async function loadCronOutput(jobId) {
     const data = await api(`/api/crons/output?job_id=${encodeURIComponent(jobId)}&limit=1`);
     const el = $('cron-out-text-' + jobId);
     if (!el) return;
-    if (!data.outputs || !data.outputs.length) { el.textContent = '(no runs yet)'; return; }
+    if (!data.outputs || !data.outputs.length) { el.textContent = t('no_runs_yet'); return; }
     const out = data.outputs[0];
     const ts = out.filename.replace('.md','').replace(/_/g,' ');
     el.textContent = ts + '\n\n' + _cronOutputSnippet(out.content);
@@ -205,14 +205,14 @@ async function loadCronHistory(jobId, btn) {
   // Toggle: if already open, close it
   if (histEl.style.display !== 'none') {
     histEl.style.display = 'none';
-    if (btn) btn.textContent = 'All runs';
+    if (btn) btn.textContent = t('all_runs');
     return;
   }
-  if (btn) btn.textContent = 'Loading…';
+  if (btn) btn.textContent = t('loading');
   try {
     const data = await api(`/api/crons/output?job_id=${encodeURIComponent(jobId)}&limit=20`);
     if (!data.outputs || !data.outputs.length) {
-      histEl.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:4px 0">(no runs yet)</div>';
+      histEl.innerHTML = `<div style="font-size:11px;color:var(--muted);padding:4px 0">${t('no_runs_yet')}</div>`;
     } else {
       histEl.innerHTML = data.outputs.map((out, i) => {
         const ts = out.filename.replace('.md','').replace(/_/g,' ');
@@ -228,9 +228,9 @@ async function loadCronHistory(jobId, btn) {
       }).join('');
     }
     histEl.style.display = '';
-    if (btn) btn.textContent = 'Hide runs';
+    if (btn) btn.textContent = t('hide_runs');
   } catch(e) {
-    if (btn) btn.textContent = 'All runs';
+    if (btn) btn.textContent = t('all_runs');
   }
 }
 
@@ -242,25 +242,25 @@ function toggleCron(id) {
 async function cronRun(id) {
   try {
     await api('/api/crons/run', {method:'POST', body: JSON.stringify({job_id: id})});
-    showToast('Job triggered ✓');
+    showToast(t('job_triggered'));
     setTimeout(() => loadCronOutput(id), 5000);
-  } catch(e) { showToast('Run failed: ' + e.message, 4000); }
+  } catch(e) { showToast(t('run_failed') + e.message, 4000); }
 }
 
 async function cronPause(id) {
   try {
     await api('/api/crons/pause', {method:'POST', body: JSON.stringify({job_id: id})});
-    showToast('Job paused');
+    showToast(t('job_paused'));
     await loadCrons();
-  } catch(e) { showToast('Pause failed: ' + e.message, 4000); }
+  } catch(e) { showToast(t('pause_failed') + e.message, 4000); }
 }
 
 async function cronResume(id) {
   try {
     await api('/api/crons/resume', {method:'POST', body: JSON.stringify({job_id: id})});
-    showToast('Job resumed ✓');
+    showToast(t('job_resumed'));
     await loadCrons();
-  } catch(e) { showToast('Resume failed: ' + e.message, 4000); }
+  } catch(e) { showToast(t('resume_failed') + e.message, 4000); }
 }
 
 function cronEditOpen(id, job) {
@@ -284,24 +284,24 @@ async function cronEditSave(id) {
   const schedule = $('cron-edit-schedule-' + id).value.trim();
   const prompt = $('cron-edit-prompt-' + id).value.trim();
   const errEl = $('cron-edit-err-' + id);
-  if (!schedule) { errEl.textContent = 'Schedule is required'; errEl.style.display = ''; return; }
-  if (!prompt) { errEl.textContent = 'Prompt is required'; errEl.style.display = ''; return; }
+  if (!schedule) { errEl.textContent = t('schedule_required_example'); errEl.style.display = ''; return; }
+  if (!prompt) { errEl.textContent = t('prompt_required'); errEl.style.display = ''; return; }
   try {
     const updates = {job_id: id, schedule, prompt};
     if (name) updates.name = name;
     await api('/api/crons/update', {method:'POST', body: JSON.stringify(updates)});
-    showToast('Job updated ✓');
+    showToast(t('job_updated'));
     await loadCrons();
-  } catch(e) { errEl.textContent = 'Error: ' + e.message; errEl.style.display = ''; }
+  } catch(e) { errEl.textContent = t('error_prefix') + e.message; errEl.style.display = ''; }
 }
 
 async function cronDelete(id) {
-  if (!confirm('Delete this cron job? This cannot be undone.')) return;
+  if (!confirm(t('delete_cron_confirm'))) return;
   try {
     await api('/api/crons/delete', {method:'POST', body: JSON.stringify({job_id: id})});
-    showToast('Job deleted');
+    showToast(t('job_deleted'));
     await loadCrons();
-  } catch(e) { showToast('Delete failed: ' + e.message, 4000); }
+  } catch(e) { showToast(t('delete_failed') + e.message, 4000); }
 }
 
 function loadTodos() {
@@ -322,7 +322,7 @@ function loadTodos() {
     }
   }
   if (!todos.length) {
-    panel.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:4px 0">No active task list in this session.</div>';
+    panel.innerHTML = `<div style="color:var(--muted);font-size:12px;padding:4px 0">${t('no_active_task_list')}</div>`;
     return;
   }
   const statusIcon = {pending:'○', in_progress:'◉', completed:'✓', cancelled:'✗'};
@@ -339,7 +339,7 @@ function loadTodos() {
 
 async function clearConversation() {
   if(!S.session) return;
-  if(!confirm('Clear all messages in this conversation? This cannot be undone.')) return;
+  if(!confirm(t('clear_conversation_confirm'))) return;
   try {
     const data = await api('/api/session/clear', {method:'POST',
       body: JSON.stringify({session_id: S.session.session_id})});
@@ -348,8 +348,8 @@ async function clearConversation() {
     S.toolCalls = [];
     syncTopbar();
     renderMessages();
-    showToast('Conversation cleared');
-  } catch(e) { setStatus('Clear failed: ' + e.message); }
+    showToast(t('conversation_cleared'));
+  } catch(e) { setStatus(t('clear_failed') + e.message); }
 }
 
 // ── Skills panel ──
@@ -373,13 +373,13 @@ function renderSkills(skills) {
   // Group by category
   const cats = {};
   for (const s of filtered) {
-    const cat = s.category || '(general)';
+    const cat = s.category || t('general_category');
     if (!cats[cat]) cats[cat] = [];
     cats[cat].push(s);
   }
   const box = $('skillsList');
   box.innerHTML = '';
-  if (!filtered.length) { box.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:12px">No skills match.</div>'; return; }
+  if (!filtered.length) { box.innerHTML = `<div style="padding:12px;color:var(--muted);font-size:12px">${t('no_skills_match')}</div>`; return; }
   for (const [cat, items] of Object.entries(cats).sort()) {
     const sec = document.createElement('div');
     sec.className = 'skills-category';
@@ -407,7 +407,7 @@ async function openSkill(name, el) {
     const data = await api(`/api/skills/content?name=${encodeURIComponent(name)}`);
     // Show skill content in right panel preview
     $('previewPathText').textContent = name + '.md';
-    $('previewBadge').textContent = 'skill';
+    $('previewBadge').textContent = t('skill_badge');
     $('previewBadge').className = 'preview-badge md';
     showPreview('md');
     let html = renderMd(data.content || '(no content)');
@@ -415,7 +415,7 @@ async function openSkill(name, el) {
     const lf = data.linked_files || {};
     const categories = Object.entries(lf).filter(([,files]) => files && files.length > 0);
     if (categories.length) {
-      html += '<div class="skill-linked-files"><div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Linked Files</div>';
+      html += `<div class="skill-linked-files"><div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">${t('linked_files')}</div>`;
       for (const [cat, files] of categories) {
         html += `<div class="skill-linked-section"><h4>${esc(cat)}</h4>`;
         for (const f of files) {
@@ -432,7 +432,7 @@ async function openSkill(name, el) {
     });
     $('previewArea').classList.add('visible');
     $('fileTree').style.display = 'none';
-  } catch(e) { setStatus('Could not load skill: ' + e.message); }
+  } catch(e) { setStatus(t('could_not_load_skill') + e.message); }
 }
 
 async function openSkillFile(skillName, filePath) {
@@ -450,7 +450,7 @@ async function openSkillFile(skillName, filePath) {
       $('previewCode').textContent = data.content || '';
       requestAnimationFrame(() => highlightCode());
     }
-  } catch(e) { setStatus('Could not load file: ' + e.message); }
+  } catch(e) { setStatus(t('could_not_load_file') + e.message); }
 }
 
 // ── Skill create/edit form ──
@@ -476,15 +476,15 @@ async function submitSkillSave() {
   const content = $('skillFormContent').value;
   const errEl = $('skillFormError');
   errEl.style.display = 'none';
-  if (!name) { errEl.textContent = 'Skill name is required'; errEl.style.display = ''; return; }
-  if (!content.trim()) { errEl.textContent = 'Content is required'; errEl.style.display = ''; return; }
+  if (!name) { errEl.textContent = t('skill_name_required'); errEl.style.display = ''; return; }
+  if (!content.trim()) { errEl.textContent = t('content_required'); errEl.style.display = ''; return; }
   try {
     await api('/api/skills/save', {method:'POST', body: JSON.stringify({name, category: category||undefined, content})});
-    showToast(_editingSkillName ? 'Skill updated ✓' : 'Skill created ✓');
+    showToast(_editingSkillName ? t('skill_updated') : t('skill_created_toast'));
     _skillsData = null;
     toggleSkillForm();
     await loadSkills();
-  } catch(e) { errEl.textContent = 'Error: ' + e.message; errEl.style.display = ''; }
+  } catch(e) { errEl.textContent = t('error_prefix') + e.message; errEl.style.display = ''; }
 }
 
 // ── Memory inline edit ──
@@ -495,7 +495,7 @@ function toggleMemoryEdit() {
   if (!form) return;
   const open = form.style.display !== 'none';
   if (open) { form.style.display = 'none'; return; }
-  $('memEditSection').textContent = 'memory (notes)';
+  $('memEditSection').textContent = t('memory_notes_section');
   $('memEditContent').value = _memoryData ? (_memoryData.memory || '') : '';
   $('memEditError').style.display = 'none';
   form.style.display = '';
@@ -512,10 +512,10 @@ async function submitMemorySave() {
   errEl.style.display = 'none';
   try {
     await api('/api/memory/write', {method:'POST', body: JSON.stringify({section: 'memory', content})});
-    showToast('Memory saved ✓');
+    showToast(t('memory_saved'));
     closeMemoryEdit();
     await loadMemory(true);
-  } catch(e) { errEl.textContent = 'Error: ' + e.message; errEl.style.display = ''; }
+  } catch(e) { errEl.textContent = t('error_prefix') + e.message; errEl.style.display = ''; }
 }
 
 // ── Workspace management ──
@@ -562,14 +562,14 @@ function renderWorkspaceDropdown(workspaces, currentWs){
       S.session.workspace=w.path;
       syncTopbar();
       await loadDir('.');
-      showToast(`Switched to ${w.name}`);
+      showToast(t('switched_to_name', w.name));
     };
     dd.appendChild(opt);
   }
   // Divider + Manage link
   const div=document.createElement('div');div.className='ws-divider';dd.appendChild(div);
   const mgmt=document.createElement('div');mgmt.className='ws-opt ws-manage';
-  mgmt.innerHTML='&#9881; Manage workspaces';
+  mgmt.innerHTML='&#9881; ' + t('manage_workspaces');
   mgmt.onclick=()=>{closeWsDropdown();switchPanel('workspaces');};
   dd.appendChild(mgmt);
 }
@@ -614,19 +614,19 @@ function renderWorkspacesPanel(workspaces){
         <div class="ws-row-path">${esc(w.path)}</div>
       </div>
       <div class="ws-row-actions">
-        <button class="ws-action-btn" title="Use in current session" onclick="switchToWorkspace('${esc(w.path)}','${esc(w.name)}')">&#8594; Use</button>
-        <button class="ws-action-btn danger" title="Remove" onclick="removeWorkspace('${esc(w.path)}')">&#10005;</button>
+        <button class="ws-action-btn" title="${t('use_in_current_session')}" onclick="switchToWorkspace('${esc(w.path)}','${esc(w.name)}')">&#8594; ${t('use_action')}</button>
+        <button class="ws-action-btn danger" title="${t('remove_title')}" onclick="removeWorkspace('${esc(w.path)}')">&#10005;</button>
       </div>`;
     panel.appendChild(row);
   }
   const addRow=document.createElement('div');addRow.className='ws-add-row';
   addRow.innerHTML=`
-    <input id="wsAddInput" placeholder="Add workspace path (e.g. /home/user/my-project)" style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;outline:none;">
-    <button class="ws-action-btn" onclick="addWorkspace()">&#43; Add</button>`;
+    <input id="wsAddInput" placeholder="${t('workspace_path_placeholder')}" style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;outline:none;">
+    <button class="ws-action-btn" onclick="addWorkspace()">&#43; ${t('add_action')}</button>`;
   panel.appendChild(addRow);
   const hint=document.createElement('div');
   hint.style.cssText='font-size:11px;color:var(--muted);padding:4px 0 8px';
-  hint.textContent='Paths are validated as existing directories before saving.';
+  hint.textContent=t('workspace_validation_hint');
   panel.appendChild(hint);
 }
 
@@ -639,18 +639,18 @@ async function addWorkspace(){
     _workspaceList=data.workspaces;
     renderWorkspacesPanel(data.workspaces);
     if(input)input.value='';
-    showToast('Workspace added');
-  }catch(e){setStatus('Add failed: '+e.message);}
+    showToast(t('workspace_added'));
+  }catch(e){setStatus(t('add_failed')+e.message);}
 }
 
 async function removeWorkspace(path){
-  if(!confirm(`Remove workspace "${path}"?`))return;
+  if(!confirm(t('remove_workspace_confirm', path)))return;
   try{
     const data=await api('/api/workspaces/remove',{method:'POST',body:JSON.stringify({path})});
     _workspaceList=data.workspaces;
     renderWorkspacesPanel(data.workspaces);
-    showToast('Workspace removed');
-  }catch(e){setStatus('Remove failed: '+e.message);}
+    showToast(t('workspace_removed'));
+  }catch(e){setStatus(t('remove_failed')+e.message);}
 }
 
 async function switchToWorkspace(path,name){
@@ -662,8 +662,8 @@ async function switchToWorkspace(path,name){
     S.session.workspace=path;
     syncTopbar();
     await loadDir('.');
-    showToast(`Switched to ${name}`);
-  }catch(e){setStatus('Switch failed: '+e.message);}
+    showToast(t('switched_to_name', name));
+  }catch(e){setStatus(t('switch_failed')+e.message);}
 }
 
 // ── Profile panel + dropdown ──
@@ -677,7 +677,7 @@ async function loadProfilesPanel() {
     _profilesCache = data;
     panel.innerHTML = '';
     if (!data.profiles || !data.profiles.length) {
-      panel.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:12px">No profiles found.</div>';
+      panel.innerHTML = `<div style="padding:16px;color:var(--muted);font-size:12px">${t('no_profiles_found')}</div>`;
       return;
     }
     for (const p of data.profiles) {
@@ -686,22 +686,22 @@ async function loadProfilesPanel() {
       const meta = [];
       if (p.model) meta.push(p.model.split('/').pop());
       if (p.provider) meta.push(p.provider);
-      if (p.skill_count) meta.push(p.skill_count + ' skill' + (p.skill_count !== 1 ? 's' : ''));
-      if (p.has_env) meta.push('API keys configured');
+      if (p.skill_count) meta.push(t('skills_count', p.skill_count));
+      if (p.has_env) meta.push(t('api_keys_configured'));
       const gwDot = p.gateway_running
-        ? '<span class="profile-opt-badge running" title="Gateway running"></span>'
-        : '<span class="profile-opt-badge stopped" title="Gateway stopped"></span>';
+        ? `<span class="profile-opt-badge running" title="${t('gateway_running')}"></span>`
+        : `<span class="profile-opt-badge stopped" title="${t('gateway_stopped')}"></span>`;
       const isActive = p.name === data.active;
-      const activeBadge = isActive ? '<span style="color:var(--link);font-size:10px;font-weight:600;margin-left:6px">ACTIVE</span>' : '';
+      const activeBadge = isActive ? `<span style="color:var(--link);font-size:10px;font-weight:600;margin-left:6px">${t('active_badge')}</span>` : '';
       card.innerHTML = `
         <div class="profile-card-header">
           <div style="min-width:0;flex:1">
-            <div class="profile-card-name${isActive ? ' is-active' : ''}">${gwDot}${esc(p.name)}${p.is_default ? ' <span style="opacity:.5">(default)</span>' : ''}${activeBadge}</div>
-            ${meta.length ? `<div class="profile-card-meta">${esc(meta.join(' \u00b7 '))}</div>` : '<div class="profile-card-meta">No configuration</div>'}
+            <div class="profile-card-name${isActive ? ' is-active' : ''}">${gwDot}${esc(p.name)}${p.is_default ? ' <span style="opacity:.5">'+t('profile_default')+'</span>' : ''}${activeBadge}</div>
+            ${meta.length ? `<div class="profile-card-meta">${esc(meta.join(' \u00b7 '))}</div>` : `<div class="profile-card-meta">${t('no_configuration')}</div>`}
           </div>
           <div class="profile-card-actions">
-            ${!isActive ? `<button class="ws-action-btn" onclick="switchToProfile('${esc(p.name)}')" title="Switch to this profile">Use</button>` : ''}
-            ${!p.is_default ? `<button class="ws-action-btn danger" onclick="deleteProfile('${esc(p.name)}')" title="Delete this profile">&#10005;</button>` : ''}
+            ${!isActive ? `<button class="ws-action-btn" onclick="switchToProfile('${esc(p.name)}')" title="${t('switch_to_profile_title')}">${t('use_action')}</button>` : ''}
+            ${!p.is_default ? `<button class="ws-action-btn danger" onclick="deleteProfile('${esc(p.name)}')" title="${t('delete_item')}">&#10005;</button>` : ''}
           </div>
         </div>`;
       panel.appendChild(card);
@@ -722,10 +722,10 @@ function renderProfileDropdown(data) {
     opt.className = 'profile-opt' + (p.name === active ? ' active' : '');
     const meta = [];
     if (p.model) meta.push(p.model.split('/').pop());
-    if (p.skill_count) meta.push(p.skill_count + ' skills');
+    if (p.skill_count) meta.push(t('skills_count', p.skill_count));
     const gwDot = `<span class="profile-opt-badge ${p.gateway_running ? 'running' : 'stopped'}"></span>`;
     const checkmark = p.name === active ? ' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--link)" stroke-width="3" style="vertical-align:-1px"><polyline points="20 6 9 17 4 12"/></svg>' : '';
-    opt.innerHTML = `<div class="profile-opt-name">${gwDot}${esc(p.name)}${p.is_default ? ' <span style="opacity:.5;font-weight:400">(default)</span>' : ''}${checkmark}</div>` +
+    opt.innerHTML = `<div class="profile-opt-name">${gwDot}${esc(p.name)}${p.is_default ? ' <span style="opacity:.5;font-weight:400">'+t('profile_default')+'</span>' : ''}${checkmark}</div>` +
       (meta.length ? `<div class="profile-opt-meta">${esc(meta.join(' \u00b7 '))}</div>` : '');
     opt.onclick = async () => {
       closeProfileDropdown();
@@ -737,7 +737,7 @@ function renderProfileDropdown(data) {
   // Divider + Manage link
   const div = document.createElement('div'); div.className = 'ws-divider'; dd.appendChild(div);
   const mgmt = document.createElement('div'); mgmt.className = 'profile-opt ws-manage';
-  mgmt.innerHTML = '&#9881; Manage profiles';
+  mgmt.innerHTML = '&#9881; ' + t('manage_profiles');
   mgmt.onclick = () => { closeProfileDropdown(); switchPanel('profiles'); };
   dd.appendChild(mgmt);
 }
@@ -750,7 +750,7 @@ function toggleProfileDropdown() {
   api('/api/profiles').then(data => {
     renderProfileDropdown(data);
     dd.classList.add('open');
-  }).catch(e => { showToast('Failed to load profiles'); });
+  }).catch(e => { showToast(t('failed_to_load_profiles')); });
 }
 
 function closeProfileDropdown() {
@@ -762,7 +762,7 @@ document.addEventListener('click', e => {
 });
 
 async function switchToProfile(name) {
-  if (S.busy) { showToast('Cannot switch profiles while agent is running'); return; }
+  if (S.busy) { showToast(t('cannot_switch_profiles_busy')); return; }
 
   // Determine whether the current session has any messages.
   // A session with messages is "in progress" and belongs to the current profile —
@@ -816,12 +816,12 @@ async function switchToProfile(name) {
       // Start a new session for the new profile so nothing gets cross-tagged.
       await newSession(false);
       await renderSessionList();
-      showToast('Switched to profile: ' + name + ' — new conversation started');
+      showToast(t('switched_profile_new_chat', name));
     } else {
       // No messages yet — just refresh the list and topbar in place
       await renderSessionList();
       syncTopbar();
-      showToast('Switched to profile: ' + name);
+      showToast(t('switched_profile', name));
     }
 
     // ── Sidebar panels ─────────────────────────────────────────────────────
@@ -831,7 +831,7 @@ async function switchToProfile(name) {
     if (_currentPanel === 'profiles') await loadProfilesPanel();
     if (_currentPanel === 'workspaces') await loadWorkspacesPanel();
 
-  } catch (e) { showToast('Switch failed: ' + e.message); }
+  } catch (e) { showToast(t('switch_failed') + e.message); }
 }
 
 function toggleProfileForm() {
@@ -851,23 +851,23 @@ async function submitProfileCreate() {
   const name = ($('profileFormName').value || '').trim().toLowerCase();
   const cloneConfig = $('profileFormClone').checked;
   const errEl = $('profileFormError');
-  if (!name) { errEl.textContent = 'Name is required'; errEl.style.display = ''; return; }
-  if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(name)) { errEl.textContent = 'Lowercase letters, numbers, hyphens, underscores only'; errEl.style.display = ''; return; }
+  if (!name) { errEl.textContent = t('name_required'); errEl.style.display = ''; return; }
+  if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(name)) { errEl.textContent = t('profile_name_rules'); errEl.style.display = ''; return; }
   try {
     await api('/api/profile/create', { method: 'POST', body: JSON.stringify({ name, clone_config: cloneConfig }) });
     toggleProfileForm();
     await loadProfilesPanel();
-    showToast('Profile created: ' + name);
-  } catch (e) { errEl.textContent = e.message || 'Create failed'; errEl.style.display = ''; }
+    showToast(t('profile_created', name));
+  } catch (e) { errEl.textContent = e.message || t('create_failed'); errEl.style.display = ''; }
 }
 
 async function deleteProfile(name) {
-  if (!confirm(`Delete profile "${name}"? This removes all config, skills, memory, and sessions for this profile.`)) return;
+  if (!confirm(t('delete_profile_confirm', name))) return;
   try {
     await api('/api/profile/delete', { method: 'POST', body: JSON.stringify({ name }) });
     await loadProfilesPanel();
-    showToast('Profile deleted: ' + name);
-  } catch (e) { showToast('Delete failed: ' + e.message); }
+    showToast(t('profile_deleted', name));
+  } catch (e) { showToast(t('delete_failed') + e.message); }
 }
 
 // ── Memory panel ──
@@ -880,21 +880,21 @@ async function loadMemory(force) {
     panel.innerHTML = `
       <div class="memory-section">
         <div class="memory-section-title">
-          &#129504; My Notes
+          &#129504; ${t('my_notes')}
           <span class="memory-mtime">${fmtTime(data.memory_mtime)}</span>
         </div>
         ${data.memory
           ? `<div class="memory-content preview-md">${renderMd(data.memory)}</div>`
-          : '<div class="memory-empty">No notes yet.</div>'}
+          : `<div class="memory-empty">${t('no_notes_yet')}</div>`}
       </div>
       <div class="memory-section">
         <div class="memory-section-title">
-          &#128100; User Profile
+          &#128100; ${t('user_profile')}
           <span class="memory-mtime">${fmtTime(data.user_mtime)}</span>
         </div>
         ${data.user
           ? `<div class="memory-content preview-md">${renderMd(data.user)}</div>`
-          : '<div class="memory-empty">No profile yet.</div>'}
+          : `<div class="memory-empty">${t('no_profile_yet')}</div>`}
       </div>`;
   } catch(e) { panel.innerHTML = `<div style="color:var(--accent);font-size:12px">Error: ${esc(e.message)}</div>`; }
 }
@@ -952,10 +952,10 @@ function _showSettingsUnsavedBar(){
   bar = document.createElement('div');
   bar.id = 'settingsUnsavedBar';
   bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(233,69,96,.12);border:1px solid rgba(233,69,96,.3);border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:13px;';
-  bar.innerHTML = '<span style="color:var(--text)">You have unsaved changes.</span>'
+  bar.innerHTML = `<span style="color:var(--text)">${t('unsaved_changes')}</span>`
     + '<span style="display:flex;gap:8px">'
-    + '<button onclick="_discardSettings()" style="padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600">Discard</button>'
-    + '<button onclick="saveSettings(true)" style="padding:5px 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;font-weight:600">Save</button>'
+    + `<button onclick="_discardSettings()" style="padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600">${t('discard')}</button>`
+    + `<button onclick="saveSettings(true)" style="padding:5px 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;font-weight:600">${t('save')}</button>`
     + '</span>';
   const body = document.querySelector('.settings-body') || document.querySelector('.settings-panel');
   if(body) body.prepend(bar);
@@ -998,11 +998,29 @@ async function loadSettingsPanel(){
       modelSel.addEventListener('change',_markSettingsDirty,{once:false});
     }
     // Send key preference
+    // Send key preference — populate with localized option text
     const sendKeySel=$('settingsSendKey');
-    if(sendKeySel){sendKeySel.value=settings.send_key||'enter';sendKeySel.addEventListener('change',_markSettingsDirty,{once:false});}
-    // Theme preference
+    if(sendKeySel){
+      sendKeySel.innerHTML=`
+        <option value="enter">${t('send_key_enter')}</option>
+        <option value="ctrl+enter">${t('send_key_ctrl')}</option>`;
+      sendKeySel.value=settings.send_key||'enter';
+      sendKeySel.addEventListener('change',_markSettingsDirty,{once:false});
+    }
+    // Theme preference — populate with localized option text
     const themeSel=$('settingsTheme');
-    if(themeSel){themeSel.value=settings.theme||'dark';themeSel.addEventListener('change',_markSettingsDirty,{once:false});}
+    if(themeSel){
+      themeSel.innerHTML=`
+        <option value="dark">${t('theme_dark')}</option>
+        <option value="light">${t('theme_light')}</option>
+        <option value="slate">${t('theme_slate')}</option>
+        <option value="solarized">${t('theme_solarized')}</option>
+        <option value="monokai">${t('theme_monokai')}</option>
+        <option value="nord">${t('theme_nord')}</option>
+        <option value="oled">${t('theme_oled')}</option>`;
+      themeSel.value=settings.theme||'dark';
+      themeSel.addEventListener('change',_markSettingsDirty,{once:false});
+    }
     // Language preference — populate from LOCALES bundle
     const langSel=$('settingsLanguage');
     if(langSel){
@@ -1014,7 +1032,7 @@ async function loadSettingsPanel(){
           langSel.appendChild(opt);
         }
       }
-      langSel.value=settings.language||'en';
+      langSel.value=settings.language||'zh';
       langSel.addEventListener('change',_markSettingsDirty,{once:false});
     }
     const showUsageCb=$('settingsShowTokenUsage');
@@ -1056,7 +1074,7 @@ async function saveSettings(andClose){
   const showCliSessions=!!($('settingsShowCliSessions')||{}).checked;
   const pw=($('settingsPassword')||{}).value;
   const theme=($('settingsTheme')||{}).value||'dark';
-  const language=($('settingsLanguage')||{}).value||'en';
+  const language=($('settingsLanguage')||{}).value||'zh';
   const body={};
   if(model) body.default_model=model;
 
@@ -1086,7 +1104,7 @@ async function saveSettings(andClose){
       const bar=$('settingsUnsavedBar'); if(bar) bar.style.display='none';
       $('settingsOverlay').style.display='none';
       return;
-    }catch(e){showToast('Save failed: '+e.message);return;}
+    }catch(e){showToast(t('settings_save_failed')+e.message);return;}
   }
   try{
     await api('/api/settings',{method:'POST',body:JSON.stringify(body)});
@@ -1116,22 +1134,22 @@ async function signOut(){
     await api('/api/auth/logout',{method:'POST',body:'{}'});
     window.location.href='/login';
   }catch(e){
-    showToast('Sign out failed: '+e.message);
+    showToast(t('sign_out_failed')+e.message);
   }
 }
 
 async function disableAuth(){
-  if(!confirm('Disable password protection? Anyone will be able to access this instance.')) return;
+  if(!confirm(t('disable_auth_confirm'))) return;
   try{
     await api('/api/settings',{method:'POST',body:JSON.stringify({_clear_password:true})});
-    showToast('Auth disabled — password protection removed');
+    showToast(t('auth_disabled'));
     // Hide both auth buttons since auth is now off
     const disableBtn=$('btnDisableAuth');
     if(disableBtn) disableBtn.style.display='none';
     const signOutBtn=$('btnSignOut');
     if(signOutBtn) signOutBtn.style.display='none';
   }catch(e){
-    showToast('Failed to disable auth: '+e.message);
+    showToast(t('disable_auth_failed')+e.message);
   }
 }
 
@@ -1156,7 +1174,7 @@ function startCronPolling(){
       if(data.completions&&data.completions.length>0){
         for(const c of data.completions){
           const icon=c.status==='error'?'\u274c':'\u2705';
-          showToast(`${icon} Cron "${c.name}" ${c.status==='error'?'failed':'completed'}`,4000);
+          showToast(c.status==='error' ? t('cron_failed_toast', c.name) : t('cron_completed', c.name),4000);
           _cronPollSince=Math.max(_cronPollSince,c.completed_at);
         }
         _cronUnreadCount+=data.completions.length;
@@ -1201,7 +1219,7 @@ const _backgroundErrors=[];  // {session_id, title, message, ts}
 function trackBackgroundError(sessionId, title, message){
   // Only track if user is NOT currently viewing this session
   if(S.session&&S.session.session_id===sessionId) return;
-  _backgroundErrors.push({session_id:sessionId, title:title||'Untitled', message, ts:Date.now()});
+  _backgroundErrors.push({session_id:sessionId, title:title||t('untitled'), message, ts:Date.now()});
   showErrorBanner();
 }
 
@@ -1218,7 +1236,8 @@ function showErrorBanner(){
   const latest=_backgroundErrors[0];  // FIFO: show oldest (first) error
   if(!latest){banner.style.display='none';return;}
   const count=_backgroundErrors.length;
-  banner.innerHTML=`<span>\u26a0 ${count>1?count+' sessions have':'"'+esc(latest.title)+'" has'} encountered an error</span><div style="display:flex;gap:6px;flex-shrink:0"><button class="reconnect-btn" onclick="navigateToErrorSession()">View</button><button class="reconnect-btn" onclick="dismissErrorBanner()">Dismiss</button></div>`;
+  const msg=count>1 ? t('background_error_multiple', count) : t('background_error_single', latest.title);
+  banner.innerHTML=`<span>\u26a0 ${esc(msg)}</span><div style="display:flex;gap:6px;flex-shrink:0"><button class="reconnect-btn" onclick="navigateToErrorSession()">${t('view_action')}</button><button class="reconnect-btn" onclick="dismissErrorBanner()">${t('dismiss')}</button></div>`;
   banner.style.display='';
 }
 

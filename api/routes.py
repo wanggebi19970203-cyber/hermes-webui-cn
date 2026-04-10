@@ -157,7 +157,7 @@ def handle_get(handler, parsed) -> bool:
     if parsed.path == '/login':
         _settings = load_settings()
         _bn = _html.escape(_settings.get('bot_name') or 'Hermes')
-        _lang = _settings.get('language', 'en')
+        _lang = _settings.get('language', 'zh')
         _login_strings = _LOGIN_LOCALE.get(_lang, _LOGIN_LOCALE['en'])
         _page = (
             _LOGIN_PAGE_HTML

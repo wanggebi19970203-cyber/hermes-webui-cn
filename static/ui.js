@@ -237,7 +237,7 @@ function setStatus(t){
     txt.textContent=t;
     bar.style.display='';
     // Show dismiss X only for static/error messages, not transient busy ones
-    const transient = t.endsWith('…') || t === (window._botName||'Hermes')+' is thinking\u2026';
+    const transient = t.endsWith('…') || t === t('assistant_thinking', window._botName||'Hermes');
     if(dismiss)dismiss.style.display=(!transient && !S.busy)?'inline':'none';
   }
 }
@@ -285,7 +285,7 @@ function updateQueueBadge(){
       badge.style.cssText='position:fixed;bottom:80px;right:24px;background:rgba(124,185,255,.18);border:1px solid rgba(124,185,255,.4);color:var(--blue);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;z-index:50;pointer-events:none;backdrop-filter:blur(8px);';
       document.body.appendChild(badge);
     }
-    badge.textContent=MSG_QUEUE.length===1?'1 message queued':`${MSG_QUEUE.length} messages queued`;
+    badge.textContent=MSG_QUEUE.length===1?t('one_message_queued'):t('many_messages_queued', MSG_QUEUE.length);
   } else {
     if(badge) badge.remove();
   }
@@ -299,7 +299,7 @@ function copyMsg(btn){
   navigator.clipboard.writeText(text).then(()=>{
     const orig=btn.innerHTML;btn.innerHTML='&#10003;';btn.style.color='var(--blue)';
     setTimeout(()=>{btn.innerHTML=orig;btn.style.color='';},1500);
-  }).catch(()=>showToast('Copy failed'));
+  }).catch(()=>showToast(t('copy_failed')));
 }
 
 // ── Reconnect banner (B4/B5: reload resilience) ──
@@ -312,7 +312,7 @@ function clearInflight() {
   localStorage.removeItem(INFLIGHT_KEY);
 }
 function showReconnectBanner(msg) {
-  $('reconnectMsg').textContent = msg || 'A response may have been in progress when you last left.';
+  $('reconnectMsg').textContent = msg || t('reconnect_finished');
   $('reconnectBanner').classList.add('visible');
 }
 function dismissReconnect() {
@@ -331,17 +331,17 @@ async function refreshSession() {
       return true;
     });
     syncTopbar(); renderMessages();
-    showToast('Conversation refreshed');
-  } catch(e) { setStatus('Refresh failed: ' + e.message); }
+    showToast(t('conversation_refreshed'));
+  } catch(e) { setStatus(t('refresh_failed') + e.message); }
 }
 // ── Update banner ──
 function _showUpdateBanner(data){
   const parts=[];
-  if(data.webui&&data.webui.behind>0) parts.push(`WebUI: ${data.webui.behind} update${data.webui.behind>1?'s':''}`);
-  if(data.agent&&data.agent.behind>0) parts.push(`Agent: ${data.agent.behind} update${data.agent.behind>1?'s':''}`);
+  if(data.webui&&data.webui.behind>0) parts.push(t('update_webui_available', data.webui.behind));
+  if(data.agent&&data.agent.behind>0) parts.push(t('update_agent_available', data.agent.behind));
   if(!parts.length)return;
   const msg=$('updateMsg');
-  if(msg) msg.textContent='\u2B06 '+parts.join(', ')+' available';
+  if(msg) msg.textContent=t('update_available_summary', parts.join(', '));
   const banner=$('updateBanner');
   if(banner) banner.classList.add('visible');
   window._updateData=data;
@@ -352,7 +352,7 @@ function dismissUpdate(){
 }
 async function applyUpdates(){
   const btn=$('btnApplyUpdate');
-  if(btn){btn.disabled=true;btn.textContent='Updating\u2026';}
+  if(btn){btn.disabled=true;btn.textContent=t('updating');}
   const targets=[];
   if(window._updateData?.webui?.behind>0) targets.push('webui');
   if(window._updateData?.agent?.behind>0) targets.push('agent');
@@ -360,18 +360,18 @@ async function applyUpdates(){
     for(const target of targets){
       const res=await api('/api/updates/apply',{method:'POST',body:JSON.stringify({target})});
       if(!res.ok){
-        showToast('Update failed ('+target+'): '+(res.message||'unknown error'));
-        if(btn){btn.disabled=false;btn.textContent='Update Now';}
+        showToast(t('update_failed_target', target, res.message||t('unknown_error')));
+        if(btn){btn.disabled=false;btn.textContent=t('update_now');}
         return;
       }
     }
-    showToast('Updated! Reloading\u2026');
+    showToast(t('updated_reloading'));
     sessionStorage.removeItem('hermes-update-checked');
     sessionStorage.removeItem('hermes-update-dismissed');
     setTimeout(()=>location.reload(),1500);
   }catch(e){
-    showToast('Update failed: '+e.message);
-    if(btn){btn.disabled=false;btn.textContent='Update Now';}
+    showToast(t('update_failed')+e.message);
+    if(btn){btn.disabled=false;btn.textContent=t('update_now');}
   }
 }
 
@@ -405,9 +405,7 @@ function syncTopbar(){
     document.title=window._botName||'Hermes';
     // Show default workspace name even without a session
     const sidebarName=$('sidebarWsName');
-    if(sidebarName && sidebarName.textContent==='Workspace'){
-      sidebarName.textContent=t('no_workspace');
-    }
+    if(sidebarName) sidebarName.textContent=t('no_workspace');
     return;
   }
   const sessionTitle=S.session.title||t('untitled');
@@ -1179,4 +1177,3 @@ async function uploadPendingFiles(){
   if(failures===total&&total>0)throw new Error(t('all_uploads_failed',total));
   return names;
 }
-

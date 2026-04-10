@@ -8,8 +8,11 @@
 > Prerequisites: SSH tunnel is active on port 8786. Open http://localhost:8786 in browser.
 > Server health check: curl http://127.0.0.1:8786/health should return {"status":"ok"}.
 >
-> Automated tests: 547 total (547 passing, 0 known isolation failures)
+> Automated tests: 564 total (524 passing, 40 skipped without hermes-agent)
 > Run: `pytest tests/ -v --timeout=60`
+>
+> Locale note for this fork: the default UI language is Simplified Chinese (`zh`).
+> English remains available from Settings and should still be smoke-tested after localization changes.
 
 ---
 
@@ -33,7 +36,7 @@ STEPS:
   1. Navigate to http://localhost:8787
 EXPECT:
   - Dark background, Hermes logo in sidebar header
-  - Center area shows "What can I help with?" heading with suggestion buttons
+  - Center area shows the localized empty-state heading ("What can I help with?" in English, Chinese by default in this fork) with suggestion buttons
   - Session list in sidebar is empty or shows existing sessions
   - No session is highlighted active
   - Send button is present but there is no input focus by default
@@ -57,7 +60,7 @@ FAIL: Button does nothing, error appears, or page crashes.
 ### T2.1: Create New Session via + Button
 SETUP: Any state.
 STEPS:
-  1. Click the "+ New conversation" button in the sidebar
+  1. Click the localized "+ New conversation" button in the sidebar
 EXPECT:
   - A new session named "Untitled" appears highlighted in the session list
   - The center area shows the empty state ("What can I help with?")
@@ -73,7 +76,7 @@ STEPS:
 EXPECT:
   - User message appears immediately in chat
   - Thinking dots (three animated dots) appear below
-  - Status bar shows "Hermes is thinking..."
+  - Status bar shows the localized equivalent of "Hermes is thinking..."
   - Send button becomes disabled (grayed out)
   - Within 10-30 seconds, Hermes responds with a three-word greeting
   - Thinking dots disappear
@@ -493,6 +496,71 @@ FAIL: Browser freezes, crash, or security issue.
 
 ---
 
+## Section 13: 中文本地化回归检查
+
+### T13.1: 默认中文界面
+SETUP: 清除 localStorage，打开隐身窗口。
+STEPS:
+  1. 导航到 http://localhost:8787
+EXPECT:
+  - 界面默认显示中文（"新建对话"、"任务"、"技能"等标签）
+  - 空状态标题显示"有什么可以帮你的？"
+  - 建议按钮显示中文文案
+FAIL: 界面显示英文或中英混合。
+
+### T13.2: 登录页默认中文
+SETUP: 启用密码认证。
+STEPS:
+  1. 导航到 http://localhost:8787/login
+EXPECT:
+  - 登录页显示中文："登录"标题、"输入密码继续"副标题
+  - 按钮显示"登录"
+  - 错误密码提示"密码错误"
+FAIL: 登录页显示英文。
+
+### T13.3: 设置切回英文
+SETUP: 默认中文界面。
+STEPS:
+  1. 点击设置齿轮图标
+  2. 将语言切换为 English
+  3. 点击"保存设置"
+EXPECT:
+  - 所有界面标签切回英文（Chat, Tasks, Skills 等）
+  - Toast 提示切回英文
+  - 刷新页面后仍保持英文
+FAIL: 切换无效或部分中英混合。
+
+### T13.4: 英文切回中文
+SETUP: 当前为英文界面。
+STEPS:
+  1. 打开设置，将语言切回中文
+  2. 保存
+EXPECT:
+  - 所有界面恢复中文
+  - 刷新后仍为中文
+FAIL: 切换无效。
+
+### T13.5: 会话操作提示中文
+SETUP: 中文界面，至少一个会话。
+STEPS:
+  1. 删除一个会话
+  2. 新建一个会话
+  3. 归档一个会话
+  4. 复制一个会话
+EXPECT:
+  - Toast 提示均为中文："对话已删除"、"已新建会话"、"会话已归档"、"会话已复制"
+FAIL: Toast 显示英文。
+
+### T13.6: 设置面板选项中文
+SETUP: 中文界面，打开设置面板。
+EXPECT:
+  - 发送键选项显示"Enter（Shift+Enter 换行）"和"Ctrl+Enter（Enter 换行）"
+  - 主题选项显示"深色（默认）"、"浅色"等中文
+  - 所有标签和描述文字均为中文
+FAIL: 设置选项显示英文。
+
+---
+
 ## Automated Test Coverage Reference
 
 These behaviors are verified by pytest (run: venv/bin/python -m pytest webui-mvp/tests/ -v):
@@ -519,6 +587,12 @@ Manual-only tests (not covered by automation):
   - T9.1 -- reconnect banner timing
   - T10.1 -- concurrent session switching
   - T11.1, T11.2 -- responsive layout
+  - T13.1-T13.6 -- Chinese localization regression (visual + DOM verification)
+
+i18n automated checks (test_sprint29.py):
+  - Login page returns zh text by default when settings.language = zh
+  - Login page returns en text when settings.language = en
+  - static/i18n.js zh bundle has no missing keys vs en bundle for high-frequency keys
   - T11.3 -- log output verification
   - All visual/CSS checks
 

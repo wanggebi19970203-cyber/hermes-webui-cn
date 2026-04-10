@@ -106,7 +106,7 @@ function cmdCompact(){
   // Send as a regular message to the agent -- the agent's run_conversation
   // preflight will detect the high token count and trigger _compress_context.
   // We send a user message so it appears in the conversation.
-  $('msg').value='Please compress and summarize the conversation context to free up space.';
+  $('msg').value=t('compact_prompt')||'Please compress and summarize the conversation context to free up space.';
   send();
   showToast(t('compressing'));
 }

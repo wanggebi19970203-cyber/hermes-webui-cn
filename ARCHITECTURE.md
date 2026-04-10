@@ -18,8 +18,24 @@ a central chat area, and a right panel for workspace file browsing.
 
 The design philosophy is deliberately minimal. There is no build step, no bundler, no
 frontend framework. The Python server is split into a routing shell (server.py) and
-business logic modules (api/). The frontend is seven vanilla JS modules loaded from static/.
+business logic modules (api/). The frontend is eight vanilla JS modules loaded from static/.
 This makes the code easy to modify from a terminal or by an agent.
+
+This fork is now Chinese-first at the UI layer: `settings.json` defaults `language` to
+`zh`, the login page reads the saved locale server-side, and user-facing panel/session
+copy is routed through `static/i18n.js` instead of being scattered as hardcoded strings.
+
+### i18n 约束
+
+所有用户可见文案必须走 `static/i18n.js` 中的 `t(key)` 函数。具体规则：
+
+1. HTML 中的静态文本使用 `data-i18n`（文本内容）、`data-i18n-title`（title 属性）、`data-i18n-placeholder`（placeholder 属性）
+2. JS 中的动态文案使用 `t('key')` — 包括 `showToast()`、`setStatus()`、`confirm()`、`prompt()` 的参数
+3. 每个新增 key 同时补 `en` 和 `zh` 两个 locale
+4. `zh` 缺失时自动回退英文，但目标是高频交互零缺口
+5. `<option>` 元素和动态文本由 JS 在运行时填充（`applyLocaleToDOM()` 不处理 option）
+6. 服务端登录页由 `api/routes.py` 根据 `settings.language` 渲染，默认 `zh`
+7. 不引入完整后端翻译框架，服务端错误仅做高频用户面可见路径的定向中文化
 
 ---
 
@@ -46,6 +62,7 @@ This makes the code easy to modify from a terminal or by an agent.
     static/
       index.html           HTML template (~364 lines)
       style.css            All CSS incl. mobile responsive (~670 lines)
+      i18n.js              Locale bundles + t() helper + DOM re-stamping (~870 lines)
       ui.js                DOM helpers, renderMd, tool cards, model dropdown, file tree (~977 lines)
       workspace.js         File preview, file ops, loadDir, clearPreview (~185 lines)
       sessions.js          Session CRUD, list rendering, search, SVG icons, overlay actions (~533 lines)
@@ -73,7 +90,7 @@ State directory (runtime data, separate from source):
     sessions/          One JSON file per session: {session_id}.json
     workspaces.json    Registered workspaces list
     last_workspace.txt Last-used workspace path
-    settings.json      User settings (default model, workspace, send key, password hash)
+    settings.json      User settings (default model, workspace, send key, language, password hash)
     projects.json      Session project groups (name, color, id)
 
 Log file:

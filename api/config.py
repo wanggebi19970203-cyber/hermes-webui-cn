@@ -821,7 +821,7 @@ _SETTINGS_DEFAULTS = {
     'sync_to_insights': False,  # mirror WebUI token usage to state.db for /insights
     'check_for_updates': True,  # check if webui/agent repos are behind upstream
     'theme': 'dark',  # active UI theme name (no enum gate -- allows custom themes)
-    'language': 'en',  # UI locale code; must match a key in static/i18n.js LOCALES
+    'language': 'zh',  # UI locale code; must match a key in static/i18n.js LOCALES
     'bot_name': os.getenv('HERMES_WEBUI_BOT_NAME', 'Hermes'),  # display name for the assistant
     'sound_enabled': False,  # play notification sound when assistant finishes
     'notifications_enabled': False,  # browser notification when tab is in background

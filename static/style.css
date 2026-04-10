@@ -19,11 +19,11 @@
   /* ── Light theme ── */
   :root[data-theme="light"]{
     --bg:#f0ede8;--sidebar:#e4e0d8;--border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
-    --text:#2c2825;--muted:#7a746a;--accent:#b5451b;--blue:#2d6fa3;--gold:#8a6520;--code-bg:#ddd8d0;
+    --text:#000000;--muted:#7a746a;--accent:#b5451b;--blue:#2d6fa3;--gold:#8a6520;--code-bg:#ddd8d0;
     --surface:#e0dcd4;--topbar-bg:rgba(228,224,216,.98);--main-bg:rgba(240,237,232,0.5);
     --focus-ring:rgba(45,111,163,.35);--focus-glow:rgba(45,111,163,.1);
     --input-bg:rgba(0,0,0,.03);--hover-bg:rgba(0,0,0,.05);
-    --strong:#1a1715;--em:#5a544a;--code-text:#8b4513;--code-inline-bg:rgba(0,0,0,.06);--pre-text:#2c2825;
+    --strong:#000000;--em:#333333;--code-text:#8b4513;--code-inline-bg:rgba(0,0,0,.06);--pre-text:#000000;
   }
   :root[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);}
   :root[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.3);}

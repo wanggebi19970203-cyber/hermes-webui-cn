@@ -13,7 +13,7 @@ async function send(){
       MSG_QUEUE.push(text);
       $('msg').value='';autoResize();
       updateQueueBadge();
-      showToast(`Queued: "${text.slice(0,40)}${text.length>40?'\u2026':''}"`,2000);
+      showToast(t('queued_toast', `${text.slice(0,40)}${text.length>40?'\u2026':''}`),2000);
     }
     return;
   }
@@ -21,7 +21,7 @@ async function send(){
 
   const activeSid=S.session.session_id;
 
-  setStatus(S.pendingFiles&&S.pendingFiles.length?'Uploading…':'Sending…');
+  setStatus(S.pendingFiles&&S.pendingFiles.length?t('uploading'):t('sending'));
   let uploaded=[];
   try{uploaded=await uploadPendingFiles();}
   catch(e){if(!text){setStatus(`❌ ${e.message}`);return;}}
@@ -29,7 +29,7 @@ async function send(){
   let msgText=text;
   if(uploaded.length&&!msgText)msgText=`I've uploaded ${uploaded.length} file(s): ${uploaded.join(', ')}`;
   else if(uploaded.length)msgText=`${text}\n\n[Attached files: ${uploaded.join(', ')}]`;
-  if(!msgText){setStatus('Nothing to send');return;}
+  if(!msgText){setStatus(t('nothing_to_send'));return;}
 
   $('msg').value='';autoResize();
   const displayText=text||(uploaded.length?`Uploaded: ${uploaded.join(', ')}`:'(file upload)');
@@ -75,8 +75,8 @@ async function send(){
     stopApprovalPolling();
     // Only hide approval card if it belongs to the session that just finished
     if(!_approvalSessionId || _approvalSessionId===activeSid) hideApprovalCard();removeThinking();
-    S.messages.push({role:'assistant',content:`**Error:** ${e.message}`});
-    renderMessages();setBusy(false);setStatus('Error: '+e.message);
+    S.messages.push({role:'assistant',content:`**${t('error_prefix')}${e.message}`});
+    renderMessages();setBusy(false);setStatus(t('error_prefix')+e.message);
     return;
   }
 
@@ -139,7 +139,7 @@ async function send(){
       if(assistantBody){
         const txt=_streamDisplay();
         const isThinking=!txt&&assistantText.length>0;
-        assistantBody.innerHTML=txt?renderMd(txt):(isThinking?'<span style="color:var(--muted);font-size:13px">Thinking\u2026</span>':'');
+        assistantBody.innerHTML=txt?renderMd(txt):(isThinking?`<span style="color:var(--muted);font-size:13px">${esc(t('thinking'))}\u2026</span>`:'');
       }
       scrollIfPinned();
     });
@@ -173,7 +173,7 @@ async function send(){
       d._session_id=activeSid;
       showApprovalCard(d);
       playNotificationSound();
-      sendBrowserNotification('Approval required',d.description||'Tool approval needed');
+      sendBrowserNotification(t('approval_required_short'),d.description||t('tool_approval_needed'));
     });
 
     source.addEventListener('done',e=>{
@@ -208,7 +208,7 @@ async function send(){
       }
       renderSessionList();setBusy(false);setStatus('');
       playNotificationSound();
-      sendBrowserNotification('Response complete',assistantText?assistantText.slice(0,100):'Task finished');
+      sendBrowserNotification(t('response_complete'),assistantText?assistantText.slice(0,100):t('task_finished'));
     });
 
     source.addEventListener('compressed',e=>{
@@ -216,9 +216,9 @@ async function send(){
       if(!S.session||S.session.session_id!==activeSid) return;
       try{
         const d=JSON.parse(e.data);
-        const sysMsg={role:'assistant',content:'*[Context was auto-compressed to continue the conversation]*'};
+        const sysMsg={role:'assistant',content:`*[${t('context_compressed')}]*`};
         S.messages.push(sysMsg);
-        showToast(d.message||'Context compressed');
+        showToast(d.message||t('context_compressed'));
       }catch(err){}
     });
 
@@ -235,17 +235,17 @@ async function send(){
           const d=JSON.parse(e.data);
           const isRateLimit=d.type==='rate_limit';
           const icon=isRateLimit?'⏱️':'⚠️';
-          const label=isRateLimit?'Rate limit reached':'Error';
-          const hint=d.hint?`\n\n*${d.hint}*`:'';
+          const label=isRateLimit?t('error_rate_limit'):t('error_generic');
+          const hint=d.hint?`\\n\\n*${d.hint}*`:'';
           S.messages.push({role:'assistant',content:`**${icon} ${label}:** ${d.message}${hint}`});
         }catch(_){
-          S.messages.push({role:'assistant',content:'**⚠️ Error:** An error occurred. Check server logs.'});
+          S.messages.push({role:'assistant',content:`**⚠️ ${t('error_prefix')}${t('error_occurred')}`});
         }
         renderMessages();
       }else if(typeof trackBackgroundError==='function'){
         const _errTitle=(typeof _allSessions!=='undefined'&&_allSessions.find(s=>s.session_id===activeSid)||{}).title||null;
-        try{const d=JSON.parse(e.data);trackBackgroundError(activeSid,_errTitle,d.message||'Error');}
-        catch(_){trackBackgroundError(activeSid,_errTitle,'Error');}
+        try{const d=JSON.parse(e.data);trackBackgroundError(activeSid,_errTitle,d.message||t('error_generic'));}
+        catch(_){trackBackgroundError(activeSid,_errTitle,t('error_generic'));}
       }
       if(!S.session||!INFLIGHT[S.session.session_id]){setBusy(false);setStatus('');}
     });
@@ -256,7 +256,7 @@ async function send(){
       try{
         const d=JSON.parse(e.data);
         // Show as a small inline notice, not a full error
-        setStatus(`⚠️ ${d.message||'Warning'}`);
+        setStatus(`⚠️ ${d.message||t('warning')}`);
         // If it's a fallback notice, show it briefly then clear
         if(d.type==='fallback') setTimeout(()=>setStatus(''),4000);
       }catch(_){}
@@ -267,12 +267,12 @@ async function send(){
       // Attempt one reconnect if the stream is still active server-side
       if(!_reconnectAttempted && streamId){
         _reconnectAttempted=true;
-        setStatus('Connection lost \u2014 reconnecting\u2026');
+        setStatus(t('connection_lost_reconnecting'));
         setTimeout(async()=>{
           try{
             const st=await api(`/api/chat/stream/status?stream_id=${encodeURIComponent(streamId)}`);
             if(st.active){
-              setStatus('Reconnected');
+              setStatus(t('reconnected'));
               _wireSSE(new EventSource(new URL(`/api/chat/stream?stream_id=${encodeURIComponent(streamId)}`,location.origin).href,{withCredentials:true}));
               return;
             }
@@ -293,7 +293,7 @@ async function send(){
       }
       if(S.session&&S.session.session_id===activeSid){
         clearLiveToolCards();if(!assistantText)removeThinking();
-        S.messages.push({role:'assistant',content:'*Task cancelled.*'});renderMessages();
+        S.messages.push({role:'assistant',content:`*${t('task_cancelled')}*`});renderMessages();
       }
       renderSessionList();
       if(!S.session||!INFLIGHT[S.session.session_id]){setBusy(false);setStatus('');}
@@ -306,16 +306,16 @@ async function send(){
     if(S.session&&S.session.session_id===activeSid){
       S.activeStreamId=null;const _cbe=$('btnCancel');if(_cbe)_cbe.style.display='none';
       clearLiveToolCards();if(!assistantText)removeThinking();
-      S.messages.push({role:'assistant',content:'**Error:** Connection lost'});renderMessages();
+      S.messages.push({role:'assistant',content:`**Error:** ${t('connection_lost')}`});renderMessages();
     }else{
       // User switched away — show background error banner
       if(typeof trackBackgroundError==='function'){
         // Look up session title from the session list cache so the banner names it correctly
         const _errTitle=(typeof _allSessions!=='undefined'&&_allSessions.find(s=>s.session_id===activeSid)||{}).title||null;
-        trackBackgroundError(activeSid,_errTitle,'Connection lost');
+        trackBackgroundError(activeSid,_errTitle,t('connection_lost'));
       }
     }
-    if(!S.session||!INFLIGHT[S.session.session_id]){setBusy(false);setStatus('Error: Connection lost');}
+    if(!S.session||!INFLIGHT[S.session.session_id]){setBusy(false);setStatus(t('error_prefix')+t('connection_lost'));}
   }
 
   _wireSSE(new EventSource(new URL(`/api/chat/stream?stream_id=${encodeURIComponent(streamId)}`,location.origin).href,{withCredentials:true}));
@@ -324,7 +324,7 @@ async function send(){
 
 function transcript(){
   const lines=[`# Hermes session ${S.session?.session_id||''}`,``,
-    `Workspace: ${S.session?.workspace||''}`,`Model: ${S.session?.model||''}`,``];
+    `${t('transcript_workspace')} ${S.session?.workspace||''}`,`${t('transcript_model')} ${S.session?.model||''}`,``];
   for(const m of S.messages){
     if(!m||m.role==='tool')continue;
     let c=m.content||'';
@@ -441,4 +441,3 @@ function sendBrowserNotification(title,body){
 }
 
 // ── Panel navigation (Chat / Tasks / Skills / Memory) ──
-

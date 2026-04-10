@@ -107,7 +107,7 @@ def test_crons_output_limit_param(cleanup_test_sessions):
 def test_cron_history_button_in_panels_js(cleanup_test_sessions):
     src, _ = get_text("/static/panels.js")
     assert "loadCronHistory" in src
-    assert "All runs" in src
+    assert ("All runs" in src) or ("t('all_runs')" in src)
 
 def test_cron_output_snippet_helper(cleanup_test_sessions):
     src, _ = get_text("/static/panels.js")
@@ -132,7 +132,7 @@ def test_tool_card_smart_truncation_in_ui_js(cleanup_test_sessions):
 def test_cancel_sse_event_handler_in_messages_js(cleanup_test_sessions):
     src, _ = get_text("/static/messages.js")
     assert "addEventListener('cancel'" in src
-    assert "Task cancelled" in src
+    assert ("Task cancelled" in src) or ("t('task_cancelled')" in src)
 
 def test_active_stream_id_tracked(cleanup_test_sessions):
     src, _ = get_text("/static/messages.js")

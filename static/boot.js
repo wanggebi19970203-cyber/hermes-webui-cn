@@ -327,13 +327,13 @@ function applyBotName(){
   const topbarTitle=$('topbarTitle');
   if(topbarTitle && (!S.session)) topbarTitle.textContent=name;
   const msg=$('msg');
-  if(msg) msg.placeholder='Message '+name+'\u2026';
+  if(msg) msg.placeholder=t('message_placeholder', name);
 }
 
 (async()=>{
   // Load send key preference
   let _bootSettings={};
-  try{const s=await api('/api/settings');_bootSettings=s;window._sendKey=s.send_key||'enter';window._showTokenUsage=!!s.show_token_usage;window._showCliSessions=!!s.show_cli_sessions;window._soundEnabled=!!s.sound_enabled;window._notificationsEnabled=!!s.notifications_enabled;window._botName=s.bot_name||'Hermes';const _theme=s.theme||'dark';document.documentElement.dataset.theme=_theme;localStorage.setItem('hermes-theme',_theme);if(s.language&&typeof setLocale==='function'){setLocale(s.language);if(typeof applyLocaleToDOM==='function')applyLocaleToDOM();}applyBotName();}catch(e){window._sendKey='enter';window._showTokenUsage=false;window._showCliSessions=false;window._soundEnabled=false;window._notificationsEnabled=false;window._botName='Hermes';_bootSettings={check_for_updates:false};}
+  try{const s=await api('/api/settings');_bootSettings=s;window._sendKey=s.send_key||'enter';window._showTokenUsage=!!s.show_token_usage;window._showCliSessions=!!s.show_cli_sessions;window._soundEnabled=!!s.sound_enabled;window._notificationsEnabled=!!s.notifications_enabled;window._botName=s.bot_name||'Hermes';const _theme=s.theme||'dark';document.documentElement.dataset.theme=_theme;localStorage.setItem('hermes-theme',_theme);if(s.language&&typeof setLocale==='function'){setLocale(s.language);if(typeof applyLocaleToDOM==='function')applyLocaleToDOM();}applyBotName();}catch(e){window._sendKey='enter';window._showTokenUsage=false;window._showCliSessions=false;window._soundEnabled=false;window._notificationsEnabled=false;window._botName='Hermes';_bootSettings={check_for_updates:false};if(typeof applyLocaleToDOM==='function')applyLocaleToDOM();applyBotName();}
   // Non-blocking update check (fire-and-forget, once per tab session)
   // ?test_updates=1 in URL forces banner display for testing (bypasses sessionStorage guards)
   const _testUpdates=new URLSearchParams(location.search).get('test_updates')==='1';
@@ -367,4 +367,3 @@ function applyBotName(){
   $('emptyState').style.display='';
   await renderSessionList();
 })();
-

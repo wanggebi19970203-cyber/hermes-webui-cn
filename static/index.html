@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -43,16 +43,16 @@
       </div>
       <!-- Create job form (hidden by default) -->
       <div id="cronCreateForm" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
-        <input id="cronFormName" placeholder="Job name (optional)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px">
-        <input id="cronFormSchedule" placeholder="Schedule: '0 9 * * *' or 'every 1h'" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px">
-        <textarea id="cronFormPrompt" rows="3" placeholder="Prompt (must be self-contained)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:none;font-family:inherit;margin-bottom:6px"></textarea>
+        <input id="cronFormName" placeholder="Job name (optional)" data-i18n-placeholder="job_name_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px">
+        <input id="cronFormSchedule" placeholder="Schedule: '0 9 * * *' or 'every 1h'" data-i18n-placeholder="schedule_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px">
+        <textarea id="cronFormPrompt" rows="3" placeholder="Prompt (must be self-contained)" data-i18n-placeholder="prompt_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:none;font-family:inherit;margin-bottom:6px"></textarea>
         <select id="cronFormDeliver" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px">
           <option value="local">Local (save output only)</option>
           <option value="discord">Discord</option>
           <option value="telegram">Telegram</option>
         </select>
         <div class="skill-picker-wrap" style="margin-bottom:8px">
-          <input id="cronFormSkillSearch" placeholder="Add skills (optional)..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none" autocomplete="off">
+          <input id="cronFormSkillSearch" placeholder="Add skills (optional)..." data-i18n-placeholder="cron_skill_search_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none" autocomplete="off">
           <div id="cronFormSkillDropdown" class="skill-picker-dropdown" style="display:none"></div>
           <div id="cronFormSkillTags" class="skill-picker-tags"></div>
         </div>
@@ -72,9 +72,9 @@
       </div>
       <!-- Skill create/edit form (hidden by default) -->
       <div id="skillCreateForm" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
-        <input id="skillFormName" placeholder="Skill name (e.g. my-skill)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
-        <input id="skillFormCategory" placeholder="Category (optional, e.g. devops)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
-        <textarea id="skillFormContent" rows="6" placeholder="SKILL.md content (YAML frontmatter + markdown body)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:vertical;font-family:'SF Mono',ui-monospace,monospace;margin-bottom:6px;box-sizing:border-box"></textarea>
+        <input id="skillFormName" placeholder="Skill name (e.g. my-skill)" data-i18n-placeholder="skill_name_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
+        <input id="skillFormCategory" placeholder="Category (optional, e.g. devops)" data-i18n-placeholder="skill_category_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
+        <textarea id="skillFormContent" rows="6" placeholder="SKILL.md content (YAML frontmatter + markdown body)" data-i18n-placeholder="skill_content_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;resize:vertical;font-family:'SF Mono',ui-monospace,monospace;margin-bottom:6px;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:6px">
           <button class="cron-btn run" style="flex:1" onclick="submitSkillSave()" data-i18n="save_skill">Save skill</button>
           <button class="cron-btn" style="flex:1" onclick="toggleSkillForm()" data-i18n="cancel">Cancel</button>
@@ -119,13 +119,13 @@
       </div>
       <!-- Profile create form (hidden by default) -->
       <div id="profileCreateForm" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
-        <input id="profileFormName" placeholder="Profile name (lowercase, a-z 0-9 hyphens)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
+        <input id="profileFormName" placeholder="Profile name (lowercase, a-z 0-9 hyphens)" data-i18n-placeholder="profile_name_placeholder" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px;outline:none;margin-bottom:6px;box-sizing:border-box">
         <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-bottom:8px;cursor:pointer">
-          <input type="checkbox" id="profileFormClone" style="accent-color:var(--accent)"> Clone config from active profile
+          <input type="checkbox" id="profileFormClone" style="accent-color:var(--accent)"> <span data-i18n="clone_active_profile">Clone config from active profile</span>
         </label>
         <div style="display:flex;gap:6px">
-          <button class="cron-btn run" style="flex:1" onclick="submitProfileCreate()">Create</button>
-          <button class="cron-btn" style="flex:1" onclick="toggleProfileForm()">Cancel</button>
+          <button class="cron-btn run" style="flex:1" onclick="submitProfileCreate()" data-i18n="create">Create</button>
+          <button class="cron-btn" style="flex:1" onclick="toggleProfileForm()" data-i18n="cancel">Cancel</button>
         </div>
         <div id="profileFormError" style="font-size:11px;color:var(--accent);margin-top:6px;display:none"></div>
       </div>
@@ -152,7 +152,7 @@
         </optgroup>
       </select>
       <div style="position:relative">
-        <div id="sidebarWsDisplay" style="display:flex;align-items:center;gap:7px;padding:0 0 8px;cursor:pointer;border-radius:8px;transition:background .15s" onclick="toggleWsDropdown()" title="Switch workspace">
+        <div id="sidebarWsDisplay" style="display:flex;align-items:center;gap:7px;padding:0 0 8px;cursor:pointer;border-radius:8px;transition:background .15s" onclick="toggleWsDropdown()" title="Switch workspace" data-i18n-title="manage_workspaces">
           <span style="font-size:14px;opacity:.7">&#128193;</span>
           <div style="min-width:0;flex:1">
             <div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="sidebarWsName">Workspace</div>
@@ -164,8 +164,8 @@
       </div>
       <div class="sidebar-actions">
         <button class="sm-btn" id="btnDownload" title="Download as Markdown" data-i18n-title="download_transcript">&#8595; <span data-i18n="transcript">Transcript</span></button>
-        <button class="sm-btn" id="btnExportJSON" title="Export full session as JSON">&#10092;/&#10093; JSON</button>
-        <button class="sm-btn" id="btnImportJSON" title="Import session from JSON">&#8593; <span data-i18n="import">Import</span></button>
+        <button class="sm-btn" id="btnExportJSON" title="Export full session as JSON" data-i18n-title="export_json_title">&#10092;/&#10093; JSON</button>
+        <button class="sm-btn" id="btnImportJSON" title="Import session from JSON" data-i18n-title="import">&#8593; <span data-i18n="import">Import</span></button>
         <input type="file" id="importFileInput" accept=".json" style="display:none">
       </div>
     </div>
@@ -179,14 +179,14 @@
       <div style="flex:1;min-width:0;overflow:hidden"><div class="topbar-title" id="topbarTitle">Hermes</div><div class="topbar-meta" id="topbarMeta" data-i18n="new_conversation">Start a new conversation</div></div>
       <div class="topbar-chips">
         <div id="profileChipWrap" style="position:relative">
-          <div class="chip profile-chip" id="profileChip" onclick="toggleProfileDropdown()" title="Switch profile" style="cursor:pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="profileChipLabel">default</span> &#9662;</div>
+          <div class="chip profile-chip" id="profileChip" onclick="toggleProfileDropdown()" title="Switch profile" data-i18n-title="switch_profile" style="cursor:pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span id="profileChipLabel">default</span> &#9662;</div>
           <div class="profile-dropdown" id="profileDropdown"></div>
         </div>
         <div class="chip model" id="modelChip">GPT-5.4 Mini</div>
 
-        <button class="chip clear-btn" id="btnClearConv" onclick="clearConversation()" title="Clear all messages in this conversation" style="display:none">&#128465; <span data-i18n="copy">Clear</span></button>
+        <button class="chip clear-btn" id="btnClearConv" onclick="clearConversation()" title="Clear all messages in this conversation" data-i18n-title="clear_conversation_confirm" style="display:none">&#128465; <span data-i18n="clear_btn">Clear</span></button>
         <button class="chip gear-btn" id="btnSettings" onclick="toggleSettings()" title="Settings" data-i18n-title="settings_title">&#9881;</button>
-        <button class="chip mobile-files-btn" id="btnMobileFiles" onclick="toggleMobileFiles()" title="Files">&#128193;</button>
+        <button class="chip mobile-files-btn" id="btnMobileFiles" onclick="toggleMobileFiles()" title="Files" data-i18n-title="files_title">&#128193;</button>
       </div>
     </div>
     <div class="messages" id="messages">
@@ -206,15 +206,15 @@
     <div class="update-banner" id="updateBanner">
       <span id="updateMsg"></span>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button class="update-btn" onclick="dismissUpdate()">Later</button>
-        <button class="update-btn update-primary" id="btnApplyUpdate" onclick="applyUpdates()">Update Now</button>
+        <button class="update-btn" onclick="dismissUpdate()" data-i18n="later">Later</button>
+        <button class="update-btn update-primary" id="btnApplyUpdate" onclick="applyUpdates()" data-i18n="update_now">Update Now</button>
       </div>
     </div>
     <div class="reconnect-banner" id="reconnectBanner">
       <span id="reconnectMsg">&#9888; A response may have been in progress when you last left. Reload messages?</span>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button class="reconnect-btn" onclick="dismissReconnect()">Dismiss</button>
-        <button class="reconnect-btn" onclick="refreshSession()">&#8635; Reload</button>
+        <button class="reconnect-btn" onclick="dismissReconnect()" data-i18n="dismiss">Dismiss</button>
+        <button class="reconnect-btn" onclick="refreshSession()">&#8635; <span data-i18n="reload">Reload</span></button>
       </div>
     </div>
     <div class="approval-card" id="approvalCard" role="alertdialog" aria-labelledby="approvalHeading" aria-describedby="approvalDesc">
@@ -231,15 +231,15 @@
             <span class="approval-btn-label" data-i18n="approval_btn_once">Allow once</span>
             <kbd class="approval-kbd">↵</kbd>
           </button>
-          <button class="approval-btn session" id="approvalBtnSession" onclick="respondApproval('session')" title="Allow for this session">
+          <button class="approval-btn session" id="approvalBtnSession" onclick="respondApproval('session')" title="Allow for this session" data-i18n-title="approval_btn_session_title">
             <span class="approval-btn-icon">&#128274;</span>
             <span class="approval-btn-label" data-i18n="approval_btn_session">Allow session</span>
           </button>
-          <button class="approval-btn always" id="approvalBtnAlways" onclick="respondApproval('always')" title="Always allow this command pattern">
+          <button class="approval-btn always" id="approvalBtnAlways" onclick="respondApproval('always')" title="Always allow this command pattern" data-i18n-title="approval_btn_always_title">
             <span class="approval-btn-icon">&#9734;</span>
             <span class="approval-btn-label" data-i18n="approval_btn_always">Always allow</span>
           </button>
-          <button class="approval-btn deny" id="approvalBtnDeny" onclick="respondApproval('deny')" title="Deny — do not run this command">
+          <button class="approval-btn deny" id="approvalBtnDeny" onclick="respondApproval('deny')" title="Deny — do not run this command" data-i18n-title="approval_btn_deny_title">
             <span class="approval-btn-icon">&#10005;</span>
             <span class="approval-btn-label" data-i18n="approval_btn_deny">Deny</span>
           </button>
@@ -251,8 +251,8 @@
       <div id="activityBarInner" style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);font-size:12px;color:var(--muted);animation:fadeIn .15s ease;">
         <span id="activityIcon" style="font-size:13px;opacity:.6">&#9881;</span>
         <span id="activityText" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-        <button id="btnCancel" onclick="cancelStream()" style="display:none;background:rgba(233,69,96,.12);border:1px solid rgba(233,69,96,.35);color:#e94560;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;transition:background .15s" title="Cancel this task">&#9632; Cancel</button>
-        <button id="btnDismissStatus" onclick="setStatus('')" style="display:none;background:none;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:0 2px;opacity:.5;flex-shrink:0" title="Dismiss">&#x2715;</button>
+        <button id="btnCancel" onclick="cancelStream()" style="display:none;background:rgba(233,69,96,.12);border:1px solid rgba(233,69,96,.35);color:#e94560;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;transition:background .15s" title="Cancel this task" data-i18n-title="cancel_task_title">&#9632; <span data-i18n="cancel_task">Cancel</span></button>
+        <button id="btnDismissStatus" onclick="setStatus('')" style="display:none;background:none;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:0 2px;opacity:.5;flex-shrink:0" title="Dismiss" data-i18n-title="dismiss">&#x2715;</button>
         <span id="activityDots" style="display:flex;gap:3px;align-items:center">
           <span style="width:4px;height:4px;border-radius:50%;background:var(--blue);opacity:.3;animation:pulse 1.4s ease-in-out infinite"></span>
           <span style="width:4px;height:4px;border-radius:50%;background:var(--blue);opacity:.3;animation:pulse 1.4s ease-in-out .22s infinite"></span>
@@ -263,20 +263,20 @@
     <div class="composer-wrap" id="composerWrap">
       <div class="cmd-dropdown" id="cmdDropdown"></div>
       <div class="composer-box" id="composerBox">
-        <div class="drop-hint" id="dropHint">
+        <div class="drop-hint" id="dropHint" data-i18n="drop_files_upload">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           Drop files to upload to workspace
         </div>
         <div class="attach-tray" id="attachTray"></div>
-        <div class="mic-status" id="micStatus" style="display:none"><span class="mic-dot"></span> Listening…</div>
-        <textarea id="msg" rows="1" placeholder="Message Hermes…"></textarea>
+        <div class="mic-status" id="micStatus" style="display:none"><span class="mic-dot"></span> <span data-i18n="listening">Listening…</span></div>
+        <textarea id="msg" rows="1" placeholder="Message Hermes…" data-i18n-placeholder="message_placeholder"></textarea>
         <div class="composer-footer">
           <div class="composer-left">
             <input type="file" id="fileInput" multiple accept="image/*,text/*,application/pdf,application/json,.md,.py,.js,.ts,.yaml,.yml,.toml,.csv,.sh,.txt,.log,.env" style="display:none">
-            <button class="icon-btn" id="btnAttach" title="Attach files">
+            <button class="icon-btn" id="btnAttach" title="Attach files" data-i18n-title="attach_files_title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
             </button>
-            <button class="icon-btn mic-btn" id="btnMic" title="Voice input" style="display:none">
+            <button class="icon-btn mic-btn" id="btnMic" title="Voice input" data-i18n-title="voice_input_title" style="display:none">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="1" width="6" height="12" rx="3"/>
                 <path d="M5 10a7 7 0 0 0 14 0"/>
@@ -285,12 +285,12 @@
               </svg>
             </button>
           </div>
-          <div class="ctx-indicator" id="ctxIndicator" style="display:none" title="Context window usage">
+          <div class="ctx-indicator" id="ctxIndicator" style="display:none" title="Context window usage" data-i18n-title="context_window_usage">
             <span class="ctx-bar-wrap"><span class="ctx-bar" id="ctxBar"></span></span>
             <span class="ctx-label" id="ctxLabel"></span>
           </div>
           <div class="composer-right">
-            <button class="send-btn" id="btnSend" title="Send message" style="display:none">
+            <button class="send-btn" id="btnSend" title="Send message" data-i18n-title="send_message_title" style="display:none">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
             </button>
           </div>
@@ -302,14 +302,14 @@
   <aside class="rightpanel">
     <div class="resize-handle" id="rightpanelResize"></div>
     <div class="panel-header">
-      <span>Workspace</span>
+      <span data-i18n="workspace_panel_title">Workspace</span>
       <span class="git-badge" id="gitBadge" style="display:none"></span>
       <div class="panel-actions">
-        <button class="panel-icon-btn" id="btnUpDir" title="Parent directory" onclick="navigateUp()" style="display:none">&#8593;</button>
-        <button class="panel-icon-btn" id="btnNewFile" title="New file" onclick="promptNewFile()">&#43;</button>
-        <button class="panel-icon-btn" id="btnNewFolder" title="New folder" onclick="promptNewFolder()">&#128193;</button>
-        <button class="panel-icon-btn" id="btnRefreshPanel" title="Refresh" onclick="if(S.session)loadDir(S.currentDir)">&#8635;</button>
-        <button class="panel-icon-btn close-preview" id="btnClearPreview" title="Close preview">&#10005;</button>
+        <button class="panel-icon-btn" id="btnUpDir" title="Parent directory" data-i18n-title="parent_directory_title" onclick="navigateUp()" style="display:none">&#8593;</button>
+        <button class="panel-icon-btn" id="btnNewFile" title="New file" data-i18n-title="new_file_title" onclick="promptNewFile()">&#43;</button>
+        <button class="panel-icon-btn" id="btnNewFolder" title="New folder" data-i18n-title="new_folder_title" onclick="promptNewFolder()">&#128193;</button>
+        <button class="panel-icon-btn" id="btnRefreshPanel" title="Refresh" data-i18n-title="refresh_title" onclick="if(S.session)loadDir(S.currentDir)">&#8635;</button>
+        <button class="panel-icon-btn close-preview" id="btnClearPreview" title="Close preview" data-i18n-title="close_preview_title">&#10005;</button>
       </div>
     </div>
     <div class="breadcrumb-bar" id="breadcrumbBar" style="display:none"></div>
@@ -318,7 +318,7 @@
       <div class="preview-path" id="previewPath">
         <span id="previewPathText"></span>
         <span class="preview-badge" id="previewBadge"></span>
-        <button id="btnDownloadFile" class="panel-icon-btn" style="margin-left:auto;font-size:12px;width:auto;padding:2px 8px" onclick="downloadFile(_previewCurrentPath)" title="Download file to your computer">&#8681; Download</button>
+        <button id="btnDownloadFile" class="panel-icon-btn" style="margin-left:auto;font-size:12px;width:auto;padding:2px 8px" onclick="downloadFile(_previewCurrentPath)" title="Download file to your computer">&#8681; <span data-i18n="download_file">Download</span></button>
         <button id="btnEditFile" class="panel-icon-btn" style="font-size:12px;width:auto;padding:2px 8px;display:none" onclick="toggleEditMode()">&#9998; Edit</button>
       </div>
       <pre class="preview-code" id="previewCode"></pre>
@@ -332,7 +332,7 @@
   <div class="settings-panel">
     <div class="settings-header">
       <h3 style="margin:0;font-size:16px" data-i18n="settings_title">Settings</h3>
-      <button class="panel-icon-btn" onclick="_closeSettingsPanel()" title="Close">&#10005;</button>
+      <button class="panel-icon-btn" onclick="_closeSettingsPanel()" title="Close" data-i18n-title="close">&#10005;</button>
     </div>
     <div class="settings-body">
       <div class="settings-field">
@@ -407,7 +407,7 @@
       <div class="settings-field">
         <label for="settingsBotName" data-i18n="settings_label_bot_name">Assistant Name</label>
         <div style="font-size:11px;color:var(--muted);margin-bottom:6px" data-i18n="settings_desc_bot_name">Display name for the assistant throughout the UI. Defaults to Hermes.</div>
-        <input type="text" id="settingsBotName" placeholder="Hermes" maxlength="64" style="width:100%;padding:8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-size:13px">
+        <input type="text" id="settingsBotName" placeholder="Hermes" data-i18n-placeholder="bot_name_placeholder" maxlength="64" style="width:100%;padding:8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px;font-size:13px">
       </div>
       <div class="settings-field" style="border-top:1px solid var(--border);padding-top:12px;margin-top:8px">
         <label for="settingsPassword" data-i18n="settings_label_password">Access Password</label>

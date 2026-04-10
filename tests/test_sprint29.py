@@ -453,3 +453,145 @@ import pytest
 def webui_server():
     """Reuse the module-scoped server started by conftest.py."""
     return BASE
+
+
+# ── 13. i18n Login Page Language ──────────────────────────────────────────────
+
+
+class TestLoginI18n:
+    """Login page should render in the language configured in settings."""
+
+    def test_login_page_default_zh(self, webui_server):
+        """GET /login should contain Chinese text when settings.language = zh."""
+        import urllib.request
+        from api.config import save_settings, load_settings, SETTINGS_FILE
+
+        original = None
+        if SETTINGS_FILE.exists():
+            original = SETTINGS_FILE.read_text()
+        try:
+            save_settings({"language": "zh"})
+            req = urllib.request.Request(webui_server + "/login")
+            with urllib.request.urlopen(req, timeout=10) as r:
+                html = r.read().decode("utf-8")
+            # Should contain Chinese login strings
+            assert "\u767b\u5f55" in html, "Login page should contain '登录' in zh mode"
+            assert 'lang="zh-CN"' in html, "Login page html lang should be zh-CN"
+        finally:
+            if original is not None:
+                SETTINGS_FILE.write_text(original)
+            else:
+                save_settings({"language": "zh"})
+
+    def test_login_page_en(self, webui_server):
+        """GET /login should contain English text when settings.language = en."""
+        import urllib.request
+        from api.config import save_settings, load_settings, SETTINGS_FILE
+
+        original = None
+        if SETTINGS_FILE.exists():
+            original = SETTINGS_FILE.read_text()
+        try:
+            save_settings({"language": "en"})
+            req = urllib.request.Request(webui_server + "/login")
+            with urllib.request.urlopen(req, timeout=10) as r:
+                html = r.read().decode("utf-8")
+            assert "Sign in" in html, "Login page should contain 'Sign in' in en mode"
+            assert 'lang="en"' in html, "Login page html lang should be en"
+        finally:
+            if original is not None:
+                SETTINGS_FILE.write_text(original)
+            else:
+                save_settings({"language": "zh"})
+
+
+# ── 14. i18n Key Completeness ────────────────────────────────────────────────
+
+
+class TestI18nKeyCompleteness:
+    """New i18n keys added in v0.39.2-cn must exist in both en and zh locales."""
+
+    NEW_KEYS = [
+        "error_rate_limit",
+        "error_generic",
+        "error_occurred",
+        "warning",
+        "transcript_workspace",
+        "transcript_model",
+        "export_json_title",
+        "switch_profile",
+        "files_title",
+        "context_window_usage",
+        "send_key_enter",
+        "send_key_ctrl",
+        "theme_dark",
+        "theme_light",
+        "theme_slate",
+        "theme_solarized",
+        "theme_monokai",
+        "theme_nord",
+        "theme_oled",
+        "profile_default",
+        "gateway_running",
+        "gateway_stopped",
+        "bot_name_placeholder",
+        "new_project",
+        "compact_prompt",
+        "clear_btn",
+    ]
+
+    def test_en_locale_has_new_keys(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "i18n.js"
+        text = src.read_text()
+        # Find en locale block
+        en_end = text.find("\n  de:")
+        en_block = text[:en_end] if en_end != -1 else text
+        for key in self.NEW_KEYS:
+            assert f"{key}:" in en_block, \
+                f"English locale missing new i18n key: {key}"
+
+    def test_zh_locale_has_new_keys(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "i18n.js"
+        text = src.read_text()
+        zh_start = text.find("\n  zh: {")
+        assert zh_start != -1, "zh locale block not found"
+        zh_end = text.find("\n};", zh_start)
+        zh_block = text[zh_start:zh_end] if zh_end != -1 else text[zh_start:]
+        for key in self.NEW_KEYS:
+            assert f"{key}:" in zh_block, \
+                f"Chinese locale missing new i18n key: {key}"
+
+
+# ── 15. JS Files No Hardcoded English ────────────────────────────────────────
+
+
+class TestNoHardcodedEnglishInJS:
+    """messages.js should use t() for all user-visible strings."""
+
+    def test_messages_js_uses_t_for_error(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "messages.js"
+        text = src.read_text()
+        # The old hardcoded 'Error:' should be replaced with t('error_prefix')
+        # Check that there's no direct `setStatus('Error:` pattern
+        assert "setStatus('Error:" not in text and 'setStatus("Error:' not in text, \
+            "messages.js should use t('error_prefix') instead of hardcoded 'Error:'"
+
+    def test_messages_js_uses_t_for_rate_limit(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "messages.js"
+        text = src.read_text()
+        assert "'Rate limit reached'" not in text and '"Rate limit reached"' not in text, \
+            "messages.js should use t('error_rate_limit') instead of hardcoded 'Rate limit reached'"
+
+    def test_sessions_js_uses_t_for_delete(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "sessions.js"
+        text = src.read_text()
+        assert "setStatus(`Delete failed:" not in text, \
+            "sessions.js should use t('delete_failed') instead of hardcoded 'Delete failed:'"
+
+    def test_commands_js_uses_t_for_compact(self):
+        src = pathlib.Path(__file__).parent.parent / "static" / "commands.js"
+        text = src.read_text()
+        # Should use t('compact_prompt'), not a bare hardcoded string
+        assert "t('compact_prompt')" in text or 't("compact_prompt")' in text, \
+            "commands.js should use t('compact_prompt') for the compact command prompt"
+

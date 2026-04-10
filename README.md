@@ -1,6 +1,12 @@
-# Hermes Web UI
+# Hermes Web UI（中文版）
 
-[Hermes Agent](https://hermes-agent.nousresearch.com/) is a sophisticated autonomous agent that lives on your server, accessed via a terminal or messaging apps, that remembers what it learns and gets more capable the longer it runs.
+> **这是 Hermes Web UI 的中文化 fork。** 默认界面语言为中文，同时保留英文切换能力。
+> 
+> - 默认语言：中文（zh）
+> - 切换英文：设置 → 语言 → English
+> - 覆盖范围：登录页、所有面板、会话操作、错误提示、设置界面均已中文化
+
+[Hermes Agent](https://hermes-agent.nousresearch.com/) 是一个驻留在服务器上的自主 Agent，可通过终端或消息应用访问，能记住学习内容，运行越久越强大。
 
 Hermes WebUI is a lightweight, dark-themed web app interface in your browser for [Hermes Agent](https://hermes-agent.nousresearch.com/).
 Full parity with the CLI experience - everything you can do from a terminal,
