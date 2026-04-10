@@ -3,8 +3,8 @@
 > Goal: Full 1:1 parity with the Hermes CLI experience via a clean dark web UI.
 > Everything you can do from the CLI terminal, you can do from this UI.
 >
-> Last updated: v0.39.1-cn (April 10, 2026)
-> Tests: 564 total (524 passing, 40 skipped without hermes-agent)
+> Last updated: v0.39.3-cn (April 10, 2026)
+> Tests: 568 total (528 passing, 40 skipped without hermes-agent)
 > Source: <repo>/
 
 ---
@@ -52,6 +52,7 @@
 | v0.39.0 | Security hardening (Sprint 29) | CSRF, PBKDF2, rate limiting, session ID validation, SSRF, ENV_LOCK, XSS, HMAC, skills traversal, secure cookie, error sanitization, startup warning | 499 |
 | v0.39.1-cn | Chinese-first localization fork | Default locale switched to zh, login/settings/panels/session actions moved onto i18n keys, reduced mixed English UI, tests updated for localized login | 564 |
 | v0.39.2-cn | Chinese localization finish | Scan and fix all remaining hardcoded English in static/*.js and index.html; add ~30 new i18n keys (error messages, settings options, profile labels, transcript fields); all user-visible text now goes through t() | 564 |
+| v0.39.3-cn | Self-update hotfix | Fix update banner apply flow for tracking branches, fetch the actual upstream remote, and surface git stderr in update failures so "Pull failed" is actionable | 568 |
 
 ---
 

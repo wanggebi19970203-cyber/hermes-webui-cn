@@ -57,6 +57,7 @@ copy is routed through `static/i18n.js` instead of being scattered as hardcoded 
       profiles.py          Profile state management, hermes_cli wrapper (~246 lines)
       routes.py            All GET + POST route handlers (~1180 lines)
       streaming.py         SSE engine, run_agent, cancel, HERMES_HOME save/restore (~236 lines)
+      updates.py           Self-update checker/apply flow; tracks upstream branch/remote, fast-forward pull only
       upload.py            Multipart parser, file upload handler (~78 lines)
       workspace.py         File ops: list_dir, read_file_content, workspace helpers (~77 lines)
     static/
@@ -137,6 +138,12 @@ Per-request environment variables (set by chat handler, restored after):
                          by this value, enabling per-session approval state.
     HERMES_HOME          Set to the active profile's directory before running agent.
                          Saved and restored around each agent run.
+
+Self-update behavior:
+
+- `api/updates.py` compares against the current branch's configured upstream when available, not always `origin/master`.
+- Update apply uses plain `git pull --ff-only` for tracking branches, because passing `origin/main` as the first positional pull argument makes Git treat it like a remote/path and fail.
+- When a git command fails, stderr is folded into the returned message so the UI toast exposes the real cause (auth, non-fast-forward, conflicts, etc.).
 
 WARNING: These env vars are process-global. Two concurrent chat requests will clobber
 each other. This is safe only for single-user, single-concurrent-request use.

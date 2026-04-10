@@ -35,7 +35,11 @@ def _run_git(args, cwd, timeout=10):
             ['git'] + args, cwd=str(cwd), capture_output=True,
             text=True, timeout=timeout,
         )
-        return r.stdout.strip(), r.returncode == 0
+        out = r.stdout.strip()
+        err = r.stderr.strip()
+        if r.returncode != 0 and err:
+            out = f'{out}\n{err}'.strip() if out else err
+        return out, r.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
         return '', False
 
@@ -54,27 +58,41 @@ def _detect_default_branch(path):
     return 'master'
 
 
+def _resolve_update_strategy(path):
+    """Resolve compare ref, fetch remote, and pull args for a repo."""
+    upstream, ok = _run_git(['rev-parse', '--abbrev-ref', '@{upstream}'], path)
+    if ok and upstream:
+        remote, _, _branch = upstream.partition('/')
+        return {
+            'compare_ref': upstream,
+            'fetch_remote': remote or 'origin',
+            # When upstream is configured, plain `git pull --ff-only` is the
+            # safe form. Passing `origin/master` as the repo argument makes Git
+            # treat it like a remote name/path and fail.
+            'pull_args': ['pull', '--ff-only'],
+        }
+
+    branch = _detect_default_branch(path)
+    return {
+        'compare_ref': f'origin/{branch}',
+        'fetch_remote': 'origin',
+        'pull_args': ['pull', '--ff-only', 'origin', branch],
+    }
+
+
 def _check_repo(path, name):
     """Check if a git repo is behind its upstream. Returns dict or None."""
     if path is None or not (path / '.git').exists():
         return None
 
+    strategy = _resolve_update_strategy(path)
+
     # Fetch latest from origin (network call, cached by TTL)
-    _, fetch_ok = _run_git(['fetch', 'origin', '--quiet'], path, timeout=15)
+    _, fetch_ok = _run_git(['fetch', strategy['fetch_remote'], '--quiet'], path, timeout=15)
     if not fetch_ok:
         return {'name': name, 'behind': 0, 'error': 'fetch failed'}
 
-    # Use the current branch's upstream tracking branch, not the repo default.
-    # This avoids false "N updates behind" alerts when the user is on a feature
-    # branch and master/main has moved forward with unrelated commits.
-    # If no upstream is set (brand-new local branch), fall back to the default branch.
-    upstream, ok = _run_git(['rev-parse', '--abbrev-ref', '@{upstream}'], path)
-    if ok and upstream:
-        # upstream is like "origin/feat/foo" — use it directly in rev-list
-        compare_ref = upstream
-    else:
-        branch = _detect_default_branch(path)
-        compare_ref = f'origin/{branch}'
+    compare_ref = strategy['compare_ref']
 
     # Count commits behind
     out, ok = _run_git(['rev-list', '--count', f'HEAD..{compare_ref}'], path)
@@ -139,14 +157,8 @@ def _apply_update_inner(target):
     if path is None or not (path / '.git').exists():
         return {'ok': False, 'message': 'Not a git repository'}
 
-    # Use the current branch's upstream for pull, matching the behaviour
-    # of _check_repo. Falls back to default branch if no upstream is set.
-    upstream, ok = _run_git(['rev-parse', '--abbrev-ref', '@{upstream}'], path)
-    if ok and upstream:
-        compare_ref = upstream
-    else:
-        branch = _detect_default_branch(path)
-        compare_ref = f'origin/{branch}'
+    strategy = _resolve_update_strategy(path)
+    compare_ref = strategy['compare_ref']
 
     # Check for dirty working tree
     status_out, _ = _run_git(['status', '--porcelain'], path)
@@ -158,7 +170,7 @@ def _apply_update_inner(target):
         stashed = True
 
     # Pull with ff-only (no merge commits)
-    pull_out, pull_ok = _run_git(['pull', '--ff-only', compare_ref], path, timeout=30)
+    pull_out, pull_ok = _run_git(strategy['pull_args'], path, timeout=30)
     if not pull_ok:
         if stashed:
             _run_git(['stash', 'pop'], path)

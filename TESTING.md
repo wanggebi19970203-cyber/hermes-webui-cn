@@ -8,11 +8,13 @@
 > Prerequisites: SSH tunnel is active on port 8786. Open http://localhost:8786 in browser.
 > Server health check: curl http://127.0.0.1:8786/health should return {"status":"ok"}.
 >
-> Automated tests: 564 total (524 passing, 40 skipped without hermes-agent)
+> Automated tests: 568 total (528 passing, 40 skipped without hermes-agent)
 > Run: `pytest tests/ -v --timeout=60`
 >
 > Locale note for this fork: the default UI language is Simplified Chinese (`zh`).
 > English remains available from Settings and should still be smoke-tested after localization changes.
+>
+> Regression note: automated coverage now includes self-update edge cases for tracking-branch pulls, upstream remote fetches, and git stderr propagation in update failures.
 
 ---
 
