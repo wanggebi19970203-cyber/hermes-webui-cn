@@ -6,8 +6,15 @@
     --focus-ring:rgba(124,185,255,.35);--focus-glow:rgba(124,185,255,.08);
     --input-bg:rgba(255,255,255,.04);--hover-bg:rgba(255,255,255,.06);
     --strong:#fff;--em:#c9c9e8;--code-text:#f0c27f;--code-inline-bg:rgba(0,0,0,.35);--pre-text:#e2e8f0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.6;
+    --font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    font-family:var(--font-family);font-size:14px;line-height:1.6;
   }
+  /* ── Font theme presets (applied via data-font-theme on <html>) ── */
+  :root[data-font-theme="noto"]{--font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;}
+  :root[data-font-theme="pingfang"]{--font-family:"PingFang SC",-apple-system,"Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;}
+  :root[data-font-theme="yahei"]{--font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;}
+  :root[data-font-theme="monospace"]{--font-family:"JetBrains Mono","Fira Code","SF Mono",ui-monospace,"Noto Sans SC",system-ui,sans-serif;}
+  :root[data-font-theme="serif"]{--font-family:"Noto Serif SC","Songti SC","SimSun",Georgia,serif;}
   /* ── Slate theme ── */
   :root[data-theme="slate"]{
     --bg:#2b2d30;--sidebar:#25272b;--border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.16);

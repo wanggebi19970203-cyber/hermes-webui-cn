@@ -822,6 +822,8 @@ _SETTINGS_DEFAULTS = {
     'check_for_updates': True,  # check if webui/agent repos are behind upstream
     'theme': 'dark',  # active UI theme name (no enum gate -- allows custom themes)
     'language': 'zh',  # UI locale code; must match a key in static/i18n.js LOCALES
+    'font_size': 14,    # UI font size in px (12-18)
+    'font_theme': 'default',  # font family preset: default|noto|pingfang|yahei|monospace|serif
     'bot_name': os.getenv('HERMES_WEBUI_BOT_NAME', 'Hermes'),  # display name for the assistant
     'sound_enabled': False,  # play notification sound when assistant finishes
     'notifications_enabled': False,  # browser notification when tab is in background
@@ -843,6 +845,7 @@ def load_settings() -> dict:
 _SETTINGS_ALLOWED_KEYS = set(_SETTINGS_DEFAULTS.keys()) - {'password_hash'}
 _SETTINGS_ENUM_VALUES = {
     'send_key': {'enter', 'ctrl+enter'},
+    'font_theme': {'default', 'noto', 'pingfang', 'yahei', 'monospace', 'serif'},
 }
 _SETTINGS_BOOL_KEYS = {'show_token_usage', 'show_cli_sessions', 'sync_to_insights', 'check_for_updates', 'sound_enabled', 'notifications_enabled'}
 # Language codes are validated as short alphanumeric BCP-47-like tags (e.g. 'en', 'zh', 'fr')
@@ -868,6 +871,14 @@ def save_settings(settings: dict) -> dict:
             # Validate language codes (BCP-47-like: 'en', 'zh', 'fr', 'zh-CN')
             if k == 'language' and (not isinstance(v, str) or not _SETTINGS_LANG_RE.match(v)):
                 continue
+            # Validate font_size (must be int in 10-24 range)
+            if k == 'font_size':
+                try:
+                    v = int(v)
+                    if v < 10 or v > 24:
+                        continue
+                except (ValueError, TypeError):
+                    continue
             # Coerce bool keys
             if k in _SETTINGS_BOOL_KEYS:
                 v = bool(v)

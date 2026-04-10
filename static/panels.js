@@ -919,6 +919,8 @@ document.addEventListener('drop',e=>{e.preventDefault();dragCounter=0;wrap.class
 
 let _settingsDirty = false;
 let _settingsThemeOnOpen = null; // track theme at open time for discard revert
+let _settingsFontOnOpen = null; // track font size at open time
+let _settingsFontThemeOnOpen = null; // track font theme at open time
 
 function toggleSettings(){
   const overlay=$('settingsOverlay');
@@ -926,6 +928,8 @@ function toggleSettings(){
   if(overlay.style.display==='none'){
     _settingsDirty = false;
     _settingsThemeOnOpen = document.documentElement.dataset.theme || 'dark';
+    _settingsFontOnOpen = localStorage.getItem('hermes-font-size') || '14';
+    _settingsFontThemeOnOpen = localStorage.getItem('hermes-font-theme') || 'default';
     overlay.style.display='';
     loadSettingsPanel();
   } else {
@@ -951,6 +955,8 @@ function _revertSettingsPreview(){
     document.documentElement.dataset.theme = _settingsThemeOnOpen;
     localStorage.setItem('hermes-theme', _settingsThemeOnOpen);
   }
+  if(_settingsFontOnOpen) _applyFontSize(_settingsFontOnOpen);
+  if(_settingsFontThemeOnOpen!==null) _applyFontTheme(_settingsFontThemeOnOpen);
 }
 
 // Show the "Unsaved changes" bar inside the settings panel
@@ -980,6 +986,35 @@ function _discardSettings(){
 function _markSettingsDirty(){
   _settingsDirty = true;
 }
+
+// ── Font helpers ──────────────────────────────────────────────────────────
+// 用 CSS zoom 做全页面等比缩放（兼容所有子元素的硬编码 font-size）
+// zoom 在 Chrome/Edge/Safari 原生支持，Firefox 126+ (2024-03) 也已支持
+function _applyFontSize(size){
+  const s=parseInt(size)||14;
+  const zoom=Math.round(s/14*100)/100;
+  document.documentElement.style.zoom=zoom;
+  localStorage.setItem('hermes-font-size', String(s));
+}
+function _applyFontTheme(theme){
+  if(theme==='default'){
+    document.documentElement.removeAttribute('data-font-theme');
+  }else{
+    document.documentElement.dataset.fontTheme=theme;
+  }
+  localStorage.setItem('hermes-font-theme', theme);
+}
+// Apply saved font on boot (before settings load, for flicker-free display)
+(function(){
+  const fs=localStorage.getItem('hermes-font-size');
+  if(fs){
+    const s=parseInt(fs)||14;
+    document.documentElement.style.zoom=Math.round(s/14*100)/100;
+  }
+  const ft=localStorage.getItem('hermes-font-theme');
+  if(ft&&ft!=='default') document.documentElement.dataset.fontTheme=ft;
+})();
+
 
 async function loadSettingsPanel(){
   try{
@@ -1044,6 +1079,31 @@ async function loadSettingsPanel(){
       langSel.value=settings.language||'zh';
       langSel.addEventListener('change',_markSettingsDirty,{once:false});
     }
+    // Font size preference
+    const fontSizeSel=$('settingsFontSize');
+    if(fontSizeSel){
+      fontSizeSel.innerHTML=`
+        <option value="12">${t('font_size_small')}</option>
+        <option value="14">${t('font_size_default')}</option>
+        <option value="15">${t('font_size_medium')}</option>
+        <option value="16">${t('font_size_large')}</option>
+        <option value="18">${t('font_size_xlarge')}</option>`;
+      fontSizeSel.value=String(settings.font_size||14);
+      fontSizeSel.addEventListener('change',function(){_applyFontSize(this.value);_markSettingsDirty();},{once:false});
+    }
+    // Font theme preference
+    const fontThemeSel=$('settingsFontTheme');
+    if(fontThemeSel){
+      fontThemeSel.innerHTML=`
+        <option value="default">${t('font_theme_default')}</option>
+        <option value="noto">${t('font_theme_noto')}</option>
+        <option value="pingfang">${t('font_theme_pingfang')}</option>
+        <option value="yahei">${t('font_theme_yahei')}</option>
+        <option value="monospace">${t('font_theme_monospace')}</option>
+        <option value="serif">${t('font_theme_serif')}</option>`;
+      fontThemeSel.value=settings.font_theme||'default';
+      fontThemeSel.addEventListener('change',function(){_applyFontTheme(this.value);_markSettingsDirty();},{once:false});
+    }
     const showUsageCb=$('settingsShowTokenUsage');
     if(showUsageCb){showUsageCb.checked=!!settings.show_token_usage;showUsageCb.addEventListener('change',_markSettingsDirty,{once:false});}
     const showCliCb=$('settingsShowCliSessions');
@@ -1084,12 +1144,16 @@ async function saveSettings(andClose){
   const pw=($('settingsPassword')||{}).value;
   const theme=($('settingsTheme')||{}).value||'dark';
   const language=($('settingsLanguage')||{}).value||'zh';
+  const fontSize=($('settingsFontSize')||{}).value||'14';
+  const fontTheme=($('settingsFontTheme')||{}).value||'default';
   const body={};
   if(model) body.default_model=model;
 
   if(sendKey) body.send_key=sendKey;
   body.theme=theme;
   body.language=language;
+  body.font_size=parseInt(fontSize)||14;
+  body.font_theme=fontTheme;
   body.show_token_usage=showTokenUsage;
   body.show_cli_sessions=showCliSessions;
   body.sync_to_insights=!!($('settingsSyncInsights')||{}).checked;
@@ -1108,6 +1172,7 @@ async function saveSettings(andClose){
       window._notificationsEnabled=body.notifications_enabled;
       if(typeof setLocale==='function') setLocale(language);
       if(typeof applyLocaleToDOM==='function') applyLocaleToDOM();
+      _applyFontSize(fontSize);_applyFontTheme(fontTheme);
       showToast(t('settings_saved_pw'));
       _settingsDirty=false; _settingsThemeOnOpen=theme;
       const bar=$('settingsUnsavedBar'); if(bar) bar.style.display='none';
@@ -1126,6 +1191,7 @@ async function saveSettings(andClose){
     if(typeof applyBotName==='function') applyBotName();
     if(typeof setLocale==='function') setLocale(language);
     if(typeof applyLocaleToDOM==='function') applyLocaleToDOM();
+    _applyFontSize(fontSize);_applyFontTheme(fontTheme);
     _settingsDirty=false; _settingsThemeOnOpen=theme;
     const bar=$('settingsUnsavedBar'); if(bar) bar.style.display='none';
     renderMessages();
