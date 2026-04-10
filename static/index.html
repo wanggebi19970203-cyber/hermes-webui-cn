@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hermes</title>
 <script>(function(){var t=localStorage.getItem('hermes-theme');if(t&&t!=='dark')document.documentElement.dataset.theme=t;})()</script>
-<link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <!-- Google Fonts: Noto Sans SC + Noto Serif SC (optional, for font themes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" crossorigin>
   <!-- Prism.js syntax highlighting (loaded async, non-blocking) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" integrity="sha384-wFjoQjtV1y5jVHbt0p35Ui8aV8GVpEZkyF99OXWqP/eNJDU93D3Ugxkoyh6Y2I4A" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" integrity="sha384-MXybTpajaBV0AkcBaCPT4KIvo0FzoCiWXgcihYsw4FUkEz0Pv3JGV6tk2G8vJtDc" crossorigin="anonymous" defer></script>
@@ -361,6 +365,16 @@
       <div class="settings-field">
         <label for="settingsLanguage" data-i18n="settings_label_language">Language</label>
         <select id="settingsLanguage" style="width:100%;padding:8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px"></select>
+      </div>
+      <div class="settings-field">
+        <label for="settingsFontSize" data-i18n="settings_label_font_size">Font size</label>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px" data-i18n="settings_desc_font_size">Adjust the UI font size. Changes apply immediately.</div>
+        <select id="settingsFontSize" style="width:100%;padding:8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px"></select>
+      </div>
+      <div class="settings-field">
+        <label for="settingsFontTheme" data-i18n="settings_label_font_theme">Font theme</label>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px" data-i18n="settings_desc_font_theme">Choose a font family for the interface.</div>
+        <select id="settingsFontTheme" style="width:100%;padding:8px;background:var(--code-bg);color:var(--text);border:1px solid var(--border2);border-radius:6px"></select>
       </div>
       <div class="settings-field">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
